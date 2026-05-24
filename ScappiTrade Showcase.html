@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ScappiTrade — Cinematic Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #000; height: 100%; overflow: hidden; }
+  body { font-family: "Inter", system-ui, sans-serif; }
+  #root { position: fixed; inset: 0; }
+  * { box-sizing: border-box; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="animations.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="scenes.jsx"></script>
+<script type="text/babel" src="acts.jsx"></script>
+<script type="text/babel" src="acts2.jsx"></script>
+<script type="text/babel" src="new-scenes.jsx"></script>
+<script type="text/babel" src="map-scenes.jsx"></script>
+<script type="text/babel" src="outro.jsx"></script>
+
+<script type="text/babel">
+
+// Tweakable defaults — persisted by the host between sessions
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "rimLightIntensity": 1,
+  "showGrain": true,
+  "duration": 27,
+  "accentSwatch": "gold",
+  "focusAct": "all"
+}/*EDITMODE-END*/;
+
+// Act timing — shifted to fit the new view-picker act
+//   Act I       0.0 → 2.6   logo macro
+//   Act II      2.4 → 5.4   sign-in card     (3.0s)
+//   Act IIb     5.2 → 7.6   view picker      (2.4s)
+//   Act III     7.4 → 11.2  dashboard        (3.8s)
+//   Act IV      11.0 → 13.6 pixel world map  (2.6s)
+//   Act V       13.4 → 16.0 hero stack       (2.6s)
+
+function ScaledApp() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  // Apply accent swatch globally on BRAND when changed (mutates the singleton)
+  const ACCENTS = {
+    gold:    { gold: '#d4a849', goldBright: '#f5d27a', goldDim: 'rgba(212, 168, 73, 0.55)', border: 'rgba(212, 168, 73, 0.22)', borderSoft: 'rgba(212, 168, 73, 0.10)' },
+    emerald: { gold: '#4ea872', goldBright: '#88e0a8', goldDim: 'rgba(78, 168, 114, 0.55)',  border: 'rgba(78, 168, 114, 0.25)',  borderSoft: 'rgba(78, 168, 114, 0.12)' },
+    royal:   { gold: '#7e8bd8', goldBright: '#b0bcff', goldDim: 'rgba(126, 139, 216, 0.6)',  border: 'rgba(126, 139, 216, 0.3)',  borderSoft: 'rgba(126, 139, 216, 0.14)' },
+    crimson: { gold: '#c4625a', goldBright: '#e89a90', goldDim: 'rgba(196, 98, 90, 0.55)',   border: 'rgba(196, 98, 90, 0.25)',   borderSoft: 'rgba(196, 98, 90, 0.12)' },
+  };
+  React.useEffect(() => {
+    Object.assign(BRAND, ACCENTS[t.accentSwatch] || ACCENTS.gold);
+  }, [t.accentSwatch]);
+
+  return (
+    <React.Fragment>
+      <Stage
+        width={1920}
+        height={1080}
+        duration={t.duration}
+        background={BRAND.bg}
+        persistKey="scappitrade-showcase"
+      >
+        <Atmosphere
+          intensity={t.rimLightIntensity}
+          showGrain={t.showGrain}
+        />
+
+        {/* Act I — Logo macro */}
+        {(t.focusAct === 'all' || t.focusAct === 'logo') && <ActOne start={0} end={2.6} />}
+
+        {/* Act II — Sign-in */}
+        {(t.focusAct === 'all' || t.focusAct === 'signin') && <ActTwo start={2.4} end={5.4} />}
+
+        {/* Act IIb — View picker (NEW) */}
+        {(t.focusAct === 'all' || t.focusAct === 'picker') && <ActViewPicker start={5.2} end={7.6} />}
+
+        {/* Act III — Dashboard */}
+        {(t.focusAct === 'all' || t.focusAct === 'dashboard') && <ActThree start={7.4} end={11.2} />}
+
+        {/* Act IV — World map (real map image) */}
+        {(t.focusAct === 'all' || t.focusAct === 'map') && <ActWorldMap start={11.0} end={13.6} />}
+
+        {/* Act IV.5 — Side-by-side: Player + Admin map views */}
+        {(t.focusAct === 'all' || t.focusAct === 'sidebyside') && <ActMapsSideBySide start={13.4} end={17.0} />}
+
+        {/* Act V — Hero stack */}
+        {(t.focusAct === 'all' || t.focusAct === 'hero') && <ActFive start={16.8} end={19.0} />}
+
+        {/* Act VI — Revamp transition */}
+        {(t.focusAct === 'all' || t.focusAct === 'revamp') && <ActRevamp start={18.8} end={23.8} />}
+
+        {/* Act VII — Split-screen price outro */}
+        {(t.focusAct === 'all' || t.focusAct === 'outro') && <ActOutroCard start={23.6} end={26.8} />}
+      </Stage>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Scene focus" />
+        <TweakSelect
+          label="Show act"
+          value={t.focusAct}
+          options={[
+            { value: 'all',       label: 'Full sequence' },
+            { value: 'logo',      label: '01 — Logo macro' },
+            { value: 'signin',    label: '02 — Sign in' },
+            { value: 'picker',    label: '03 — View picker' },
+            { value: 'dashboard', label: '04 — Dashboard' },
+            { value: 'map',       label: '05 — World map' },
+            { value: 'sidebyside',label: '06 — Player + Admin map' },
+            { value: 'hero',      label: '07 — Hero stack' },
+            { value: 'revamp',    label: '08 — Revamp cuts' },
+            { value: 'outro',     label: '09 — Price outro' },
+          ]}
+          onChange={(v) => setTweak('focusAct', v)}
+        />
+        <TweakSlider
+          label="Duration"
+          value={t.duration}
+          min={10} max={40} step={1} unit="s"
+          onChange={(v) => setTweak('duration', v)}
+        />
+
+        <TweakSection label="Theme" />
+        <TweakRadio
+          label="Accent"
+          value={t.accentSwatch}
+          options={['gold', 'emerald', 'royal', 'crimson']}
+          onChange={(v) => setTweak('accentSwatch', v)}
+        />
+
+        <TweakSection label="Atmosphere" />
+        <TweakSlider
+          label="Rim lights"
+          value={t.rimLightIntensity}
+          min={0} max={2} step={0.1}
+          onChange={(v) => setTweak('rimLightIntensity', v)}
+        />
+        <TweakToggle
+          label="Film grain"
+          value={t.showGrain}
+          onChange={(v) => setTweak('showGrain', v)}
+        />
+      </TweaksPanel>
+    </React.Fragment>
+  );
+}
+
+// Wrappers for the existing dashboard & hero acts shifted to the new timing
+// (Now handled by passing start/end props directly above.)
+
+ReactDOM.createRoot(document.getElementById('root')).render(<ScaledApp />);
+</script>
+</body>
+</html>

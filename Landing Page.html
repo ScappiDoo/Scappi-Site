@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ScappiTrade — Real cargo. Real markets. Real risk.</title>
+<meta name="description" content="A premium Paper plugin that turns Minecraft into a working trade economy. Caravans, supply-driven prices, a four-type stock exchange, diplomacy and a 48-endpoint dashboard." />
+<meta property="og:title" content="ScappiTrade — A trading economy for serious servers" />
+<meta property="og:description" content="Load real items into a trader llama. Dispatch across the world. Supply, tax and bandits decide your profit." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'><path d='M14 1.5L25.5 8v12L14 26.5 2.5 20V8L14 1.5z' fill='%230a0a12' stroke='%23d4a849' stroke-width='1.4'/><circle cx='14' cy='14' r='2' fill='%23f5d27a'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a12;
+    --bg-2: #11111c;
+    --bg-3: #161623;
+    --ink: #f1e6c9;
+    --ink-dim: #b8a982;
+    --ink-faint: #7a6e54;
+    --rule: rgba(212, 168, 73, 0.18);
+    --rule-soft: rgba(212, 168, 73, 0.08);
+    --gold: #d4a849;
+    --gold-bright: #f5d27a;
+    --gold-deep: #9b7a2e;
+    --emerald: #6dbe8f;
+    --crimson: #d36b5e;
+    --serif: "Cormorant Garamond", "Times New Roman", serif;
+    --sans: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body {
+    background:
+      radial-gradient(900px 600px at 85% -10%, rgba(212, 168, 73, 0.10), transparent 60%),
+      radial-gradient(700px 500px at -10% 30%, rgba(212, 168, 73, 0.06), transparent 60%),
+      var(--bg);
+    overflow-x: hidden;
+  }
+  /* Subtle grain */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.83  0 0 0 0 0.66  0 0 0 0 0.29  0 0 0 0.045 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: screen;
+    opacity: 0.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--gold); color: #0a0a12; }
+
+  /* ---------- shared type ---------- */
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .eyebrow .dot { color: var(--gold); margin: 0 8px; }
+  .eyebrow .marker { color: var(--gold); }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 500; margin: 0; letter-spacing: -0.005em; }
+  h2 { font-size: clamp(48px, 5.4vw, 84px); line-height: 1.02; }
+  h3 { font-size: 32px; line-height: 1.1; }
+  p { margin: 0; line-height: 1.55; }
+  .lede { font-family: var(--serif); font-size: 22px; line-height: 1.45; color: var(--ink); font-style: italic; font-weight: 400; }
+  .body-text { color: var(--ink-dim); font-size: 15px; line-height: 1.65; }
+  .mono { font-family: var(--mono); }
+
+  .container { max-width: 1240px; margin: 0 auto; padding: 0 56px; }
+  @media (max-width: 720px) { .container { padding: 0 24px; } }
+
+  /* ---------- nav ---------- */
+  nav.top {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: rgba(10, 10, 18, 0.72);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  nav.top .inner {
+    max-width: 1240px; margin: 0 auto; padding: 18px 56px;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-hex { width: 28px; height: 28px; display: grid; place-items: center; }
+  .brand-hex svg { width: 100%; height: 100%; }
+  .brand-name { font-family: var(--serif); font-size: 22px; letter-spacing: 0.02em; color: var(--gold-bright); }
+  .nav-links { display: flex; gap: 30px; margin-left: auto; }
+  .nav-links a { font-size: 13px; color: var(--ink-dim); transition: color .2s; }
+  .nav-links a:hover { color: var(--gold-bright); }
+  .btn {
+    font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
+    padding: 10px 20px; border-radius: 2px; cursor: pointer; transition: all .2s ease;
+    border: 1px solid var(--gold); background: var(--gold); color: #0a0a12;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn:hover { background: var(--gold-bright); border-color: var(--gold-bright); transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: var(--gold-bright); }
+  .btn.ghost:hover { background: rgba(212, 168, 73, 0.08); }
+  @media (max-width: 860px) { .nav-links { display: none; } nav.top .inner { padding: 14px 24px; } }
+
+  /* ---------- ticker ---------- */
+  .ticker {
+    border-bottom: 1px solid var(--rule);
+    border-top: 1px solid var(--rule-soft);
+    overflow: hidden;
+    background: #07070d;
+    position: relative;
+  }
+  .ticker::before, .ticker::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2;
+    pointer-events: none;
+  }
+  .ticker::before { left: 0; background: linear-gradient(to right, #07070d, transparent); }
+  .ticker::after { right: 0; background: linear-gradient(to left, #07070d, transparent); }
+  .ticker-track {
+    display: flex; gap: 48px; padding: 12px 0;
+    white-space: nowrap;
+    animation: scroll 60s linear infinite;
+    width: max-content;
+  }
+  .tick {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em;
+    color: var(--ink-dim); display: inline-flex; align-items: center; gap: 10px;
+  }
+  .tick .sym { color: var(--ink); }
+  .tick .px { color: var(--gold-bright); }
+  .tick .chg.up { color: var(--emerald); }
+  .tick .chg.dn { color: var(--crimson); }
+  .tick .sep { color: var(--ink-faint); }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ---------- hero ---------- */
+  section.hero { padding: 80px 0 100px; position: relative; }
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr 0.85fr; gap: 80px; align-items: end;
+  }
+  @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; gap: 48px; } }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(72px, 10.2vw, 156px);
+    line-height: 0.92;
+    letter-spacing: -0.018em;
+    font-weight: 500;
+    margin-top: 36px;
+  }
+  .hero h1 em { font-style: italic; color: var(--gold-bright); font-weight: 400; }
+  .hero h1 .ampersand {
+    font-family: var(--serif); font-style: italic; color: var(--gold);
+    font-weight: 400; display: inline-block; transform: translateY(0.04em);
+  }
+  .hero-sub {
+    margin-top: 36px; max-width: 480px;
+    font-family: var(--serif); font-size: 22px; font-style: italic; line-height: 1.45; color: var(--ink);
+  }
+  .hero-sub .accent { color: var(--gold-bright); font-style: normal; font-family: var(--mono); font-size: 14px; letter-spacing: 0.04em; }
+  .hero-cta { margin-top: 40px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .hero-meta {
+    margin-top: 36px; display: flex; gap: 28px; flex-wrap: wrap;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .hero-meta strong { color: var(--ink-dim); font-weight: 500; }
+
+  /* hero side panel — the receipt / dispatch slip */
+  .receipt {
+    border: 1px solid var(--rule);
+    background: linear-gradient(180deg, rgba(212,168,73,0.04), transparent 60%), var(--bg-2);
+    padding: 32px;
+    position: relative;
+  }
+  .receipt::before {
+    content: ""; position: absolute; inset: -1px; border: 1px solid var(--rule-soft);
+    transform: translate(8px, 8px); z-index: -1;
+  }
+  .receipt-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; border-bottom: 1px dashed var(--rule); }
+  .receipt-title { font-family: var(--serif); font-size: 22px; color: var(--gold-bright); }
+  .receipt-num { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.16em; }
+  .receipt-section { padding: 18px 0; border-bottom: 1px dashed var(--rule); }
+  .receipt-section:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .receipt-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; }
+  .receipt-row .l { font-size: 13px; color: var(--ink-dim); }
+  .receipt-row .r { font-family: var(--mono); font-size: 12px; color: var(--ink); letter-spacing: 0.04em; }
+  .receipt-row .r.gold { color: var(--gold-bright); }
+  .receipt-tag {
+    display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    color: var(--gold); padding: 2px 8px; border: 1px solid var(--rule);
+  }
+  .receipt-total {
+    margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--gold);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .receipt-total .l { font-family: var(--serif); font-size: 16px; color: var(--ink); letter-spacing: 0.08em; text-transform: uppercase; }
+  .receipt-total .r { font-family: var(--serif); font-size: 32px; color: var(--gold-bright); }
+  .stamp {
+    position: absolute; right: -16px; bottom: 28px; transform: rotate(-8deg);
+    border: 2px solid var(--gold); color: var(--gold); padding: 6px 14px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    background: rgba(10, 10, 18, 0.5);
+  }
+
+  /* ---------- section header ---------- */
+  .section-head {
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: end;
+    padding-bottom: 40px; border-bottom: 1px solid var(--rule);
+  }
+  @media (max-width: 860px) { .section-head { grid-template-columns: 1fr; gap: 24px; } }
+  .section-head h2 { margin-top: 12px; }
+  .section-head .desc { font-family: var(--serif); font-size: 22px; line-height: 1.4; color: var(--ink-dim); font-style: italic; max-width: 520px; margin-top: 18px; }
+
+  /* ---------- showcase section ---------- */
+  section.showcase { padding: 100px 0 120px; border-top: 1px solid var(--rule-soft); }
+  .showcase-head {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 48px; flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .showcase-head h2 { font-size: clamp(40px, 5vw, 72px); line-height: 1.02; max-width: 720px; margin-top: 12px; }
+  .showcase-head h2 em { color: var(--gold-bright); font-weight: 400; }
+  .showcase-meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--ink-faint); text-transform: uppercase; display: flex; flex-direction: column; gap: 8px; text-align: right; min-width: 160px; }
+  .showcase-meta strong { color: var(--gold); display: block; font-weight: 500; }
+  .showcase-frame {
+    position: relative; width: 100%; aspect-ratio: 16/9;
+    border: 1px solid var(--gold); background: #000;
+    overflow: hidden;
+  }
+  .showcase-frame::before {
+    content: ""; position: absolute; inset: -1px; border: 1px solid var(--rule-soft);
+    transform: translate(10px, 10px); z-index: -1;
+  }
+  .showcase-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  .showcase-frame-corner {
+    position: absolute; font-family: var(--mono); font-size: 10px; color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase;
+    pointer-events: none; z-index: 2;
+    background: rgba(7,7,13,0.7); padding: 4px 8px; backdrop-filter: blur(4px);
+  }
+  .showcase-frame-corner.tl { top: 12px; left: 12px; }
+  .showcase-frame-corner.tr { top: 12px; right: 12px; }
+  .showcase-frame-corner.bl { bottom: 12px; left: 12px; }
+  .showcase-frame-corner.br { bottom: 12px; right: 12px; }
+  .showcase-strip {
+    margin-top: 24px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--rule); border: 1px solid var(--rule);
+  }
+  @media (max-width: 720px) { .showcase-strip { grid-template-columns: repeat(2, 1fr); } }
+  .showcase-strip .chap {
+    background: var(--bg-2); padding: 18px 18px 20px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .showcase-strip .chap .tc { font-family: var(--mono); font-size: 10px; color: var(--gold); letter-spacing: 0.16em; }
+  .showcase-strip .chap .ti { font-family: var(--serif); font-size: 18px; color: var(--ink); }
+  .showcase-strip .chap .ds { font-size: 12px; color: var(--ink-faint); line-height: 1.5; }
+
+  /* ---------- scroll reveals & atmosphere ---------- */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .9s ease-out, transform .9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* candle motes — a slow drift of tiny gold dots behind the hero */
+  .motes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .motes span {
+    position: absolute; width: 2px; height: 2px; border-radius: 50%;
+    background: var(--gold); opacity: 0.35;
+    animation: drift 22s linear infinite;
+    box-shadow: 0 0 6px var(--gold);
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(0, 100vh, 0); opacity: 0; }
+    10%  { opacity: 0.55; }
+    90%  { opacity: 0.45; }
+    100% { transform: translate3d(40px, -10vh, 0); opacity: 0; }
+  }
+  .hero { position: relative; }
+  .hero > .container { position: relative; z-index: 1; }
+
+  /* count-up containers */
+  .countup { font-variant-numeric: tabular-nums; }
+
+  /* feature hover polish — gold trace + nudge */
+  .feature { position: relative; }
+  .feature::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    border: 1px solid transparent;
+    transition: border-color .25s ease;
+  }
+  .feature:hover::after { border-color: var(--gold); }
+  .feature:hover .feature-no { color: var(--gold-bright); transform: translateY(-2px); }
+  .feature-no { transition: all .2s ease; }
+
+  /* ---------- caravan animation on map ---------- */
+  .map-caravan {
+    position: absolute; width: 24px; height: 24px; z-index: 5;
+    display: grid; place-items: center;
+    transform: translate(-50%, -50%);
+    animation: caravan-trail 18s linear infinite;
+    filter: drop-shadow(0 0 8px var(--gold));
+  }
+  .map-caravan-glyph {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--gold-bright);
+    box-shadow: 0 0 0 3px rgba(212,168,73,0.3), 0 0 16px var(--gold);
+    position: relative;
+  }
+  .map-caravan-glyph::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px;
+    background: #0a0a12; border-radius: 50%; transform: translate(-50%, -50%);
+  }
+  /* path is approximated; use percentage-based keyframe (offset-path coords don't scale with the responsive map-frame) */
+  @keyframes caravan-trail {
+    0%   { left: 22%; top: 36%; opacity: 0; }
+    8%   { opacity: 1; }
+    50%  { left: 46%; top: 46%; }
+    92%  { opacity: 1; }
+    100% { left: 70%; top: 42%; opacity: 0; }
+  }
+
+  /* ---------- ledger marquee ---------- */
+  .ledger {
+    border-bottom: 1px solid var(--rule);
+    background: #060611;
+    overflow: hidden;
+    position: relative;
+    height: 36px;
+  }
+  .ledger::before, .ledger::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 100px; z-index: 2; pointer-events: none;
+  }
+  .ledger::before { left: 0; background: linear-gradient(to right, #060611, transparent); }
+  .ledger::after { right: 0; background: linear-gradient(to left, #060611, transparent); }
+  .ledger-track {
+    display: flex; align-items: center; gap: 0;
+    white-space: nowrap; padding-top: 9px;
+    animation: ledger-scroll 120s linear infinite;
+    width: max-content;
+  }
+  .ledger-event {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-dim); letter-spacing: 0.04em;
+    padding: 0 28px; border-right: 1px solid var(--rule-soft);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .ledger-event .ts { color: var(--ink-faint); }
+  .ledger-event .who { color: var(--gold-bright); }
+  .ledger-event .what { color: var(--ink); }
+  .ledger-event .amt.up { color: var(--emerald); }
+  .ledger-event .amt.dn { color: var(--crimson); }
+  .ledger-event .dot::before { content: "●"; color: var(--gold); margin-right: 8px; font-size: 8px; }
+  @keyframes ledger-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ---------- server strip ---------- */
+  section.servers { padding: 80px 0; border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft); }
+  .servers-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 18px; margin-bottom: 32px; }
+  .servers-head h3 { font-family: var(--serif); font-size: 28px; color: var(--ink); font-weight: 500; }
+  .servers-head .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--ink-faint); text-transform: uppercase; }
+  .servers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  @media (max-width: 860px) { .servers-grid { grid-template-columns: repeat(2, 1fr); } }
+  .server-card { background: var(--bg); padding: 24px 20px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; }
+  .server-card .nm { font-family: var(--serif); font-size: 22px; color: var(--gold-bright); font-weight: 500; }
+  .server-card .mt { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--ink-faint); text-transform: uppercase; }
+  .server-card .ds { font-size: 12px; color: var(--ink-dim); margin-top: auto; line-height: 1.5; }
+
+  /* ---------- why $49.99 ---------- */
+  section.why { padding: 140px 0; }
+  .why-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 80px; align-items: start; }
+  @media (max-width: 980px) { .why-grid { grid-template-columns: 1fr; gap: 48px; } }
+  .why-body h2 { margin-top: 18px; }
+  .why-body .lede { margin-top: 24px; max-width: 520px; }
+  .why-body p { margin-top: 18px; color: var(--ink-dim); font-size: 15px; line-height: 1.7; max-width: 520px; }
+  .why-body p strong { color: var(--ink); font-weight: 600; }
+  .why-sig {
+    margin-top: 36px; padding-top: 24px; border-top: 1px dashed var(--rule);
+    display: flex; gap: 16px; align-items: center;
+  }
+  .why-sig .sg { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--gold-bright); }
+  .why-sig .ti { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--ink-faint); text-transform: uppercase; }
+
+  .why-paying {
+    border: 1px solid var(--rule); background: var(--bg-2); padding: 32px;
+  }
+  .why-paying-h { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .why-paying-h .t { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; }
+  .why-paying-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 14px 0; border-bottom: 1px dashed var(--rule);
+  }
+  .why-paying-row:last-child { border-bottom: none; }
+  .why-paying-row .l { font-size: 14px; color: var(--ink); }
+  .why-paying-row .r { font-family: var(--mono); font-size: 14px; color: var(--gold-bright); letter-spacing: 0.04em; }
+
+  /* ---------- roadmap ---------- */
+  section.roadmap { padding: 120px 0; background: var(--bg-2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .roadmap-grid {
+    margin-top: 64px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    position: relative;
+  }
+  .roadmap-grid::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 28px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--rule) 8%, var(--rule) 92%, transparent);
+  }
+  @media (max-width: 860px) { .roadmap-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .roadmap-grid { grid-template-columns: 1fr; } }
+  .rm-cell { padding: 0 24px 0 0; position: relative; }
+  .rm-cell:not(:last-child) { border-right: 1px dashed var(--rule); padding-right: 24px; }
+  .rm-dot {
+    width: 14px; height: 14px; border-radius: 50%; background: var(--bg-2);
+    border: 2px solid var(--gold);
+    margin: 21px 0 18px;
+  }
+  .rm-cell.current .rm-dot { background: var(--gold-bright); box-shadow: 0 0 0 5px rgba(212,168,73,0.2), 0 0 18px var(--gold); }
+  .rm-cell.future .rm-dot { border-color: var(--gold-deep); }
+  .rm-ver { font-family: var(--serif); font-size: 28px; color: var(--gold-bright); font-weight: 500; }
+  .rm-ver em { font-style: italic; color: var(--ink-faint); font-size: 14px; margin-left: 8px; }
+  .rm-when { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--ink-faint); text-transform: uppercase; margin: 6px 0 14px; }
+  .rm-list { display: flex; flex-direction: column; gap: 8px; }
+  .rm-list li { list-style: none; color: var(--ink-dim); font-size: 13px; line-height: 1.5; padding-left: 16px; position: relative; }
+  .rm-list li::before { content: "·"; color: var(--gold); position: absolute; left: 4px; top: -2px; font-size: 18px; }
+
+  /* ---------- FAQ ---------- */
+  section.faq { padding: 140px 0; }
+  .faq-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 80px; align-items: start; }
+  @media (max-width: 980px) { .faq-grid { grid-template-columns: 1fr; gap: 36px; } }
+  .faq-body h2 { margin-top: 18px; }
+  .faq-list { margin-top: 0; border-top: 1px solid var(--rule); }
+  .faq-item { border-bottom: 1px solid var(--rule); }
+  .faq-q {
+    display: grid; grid-template-columns: 48px 1fr 28px; gap: 16px; align-items: center;
+    padding: 22px 4px; cursor: pointer; user-select: none;
+  }
+  .faq-q .num { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--gold-deep); }
+  .faq-q .qt { font-family: var(--serif); font-size: 22px; color: var(--ink); line-height: 1.3; }
+  .faq-q .toggle { font-family: var(--serif); font-style: italic; font-size: 28px; color: var(--gold); justify-self: end; transition: transform .25s ease; }
+  .faq-item.open .faq-q .toggle { transform: rotate(45deg); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+  .faq-item.open .faq-a { max-height: 380px; }
+  .faq-a-inner { padding: 0 4px 26px 64px; color: var(--ink-dim); font-size: 15px; line-height: 1.65; max-width: 720px; }
+  .faq-a-inner p { margin-top: 0; }
+  .faq-a-inner p + p { margin-top: 12px; }
+
+  /* ---------- wax seal ---------- */
+  .wax-seal {
+    position: absolute; right: -20px; top: -20px;
+    width: 92px; height: 92px; border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, #f5d27a, #b2862c 50%, #6b4f15 100%);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.55), inset 0 -8px 14px rgba(0,0,0,0.35), inset 0 6px 10px rgba(255,220,140,0.35);
+    display: grid; place-items: center;
+    transform: rotate(-12deg);
+    z-index: 5;
+    font-family: var(--serif); color: #2a1a07;
+  }
+  .wax-seal-inner {
+    width: 76px; height: 76px; border-radius: 50%;
+    border: 1.5px dashed rgba(42,26,7,0.55);
+    display: grid; place-items: center;
+    text-align: center;
+  }
+  .wax-seal-inner .top, .wax-seal-inner .bot {
+    font-family: var(--mono); font-size: 7px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(42,26,7,0.75);
+  }
+  .wax-seal-inner .ver { font-family: var(--serif); font-size: 19px; font-weight: 600; line-height: 1; margin: 3px 0; color: #2a1a07; }
+
+  /* ---------- accent picker ---------- */
+  .accent-picker {
+    position: fixed; bottom: 20px; right: 20px; z-index: 60;
+    background: rgba(7, 7, 13, 0.92); backdrop-filter: blur(10px);
+    border: 1px solid var(--rule); padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--ink-faint); text-transform: uppercase;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  }
+  .accent-swatch {
+    width: 18px; height: 18px; border-radius: 50%;
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.08);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .accent-swatch:hover { transform: scale(1.12); }
+  .accent-swatch.active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px currentColor; }
+
+  /* ---------- footnotes ---------- */
+  .footnote {
+    margin-top: 28px; padding-top: 14px; border-top: 1px dashed var(--rule-soft);
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint); line-height: 1.65; letter-spacing: 0.02em;
+  }
+  .footnote sup { color: var(--gold); }
+
+  /* ---------- caravan loop section ---------- */
+  section.loop { padding: 120px 0; }
+  .loop-grid {
+    margin-top: 64px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .loop-grid-5 { grid-template-columns: repeat(5, 1fr); }
+  code.inl { font-family: var(--mono); font-size: 12px; background: rgba(212,168,73,0.08); padding: 1px 6px; color: var(--gold-bright); }
+  @media (max-width: 1080px) { .loop-grid-5 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 980px) { .loop-grid, .loop-grid-5 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .loop-grid, .loop-grid-5 { grid-template-columns: 1fr; } }
+  .step {
+    padding: 32px 28px 36px; border-right: 1px solid var(--rule);
+    position: relative;
+    min-height: 320px;
+    display: flex; flex-direction: column;
+  }
+  .step:last-child { border-right: none; }
+  @media (max-width: 980px) {
+    .step:nth-child(2n) { border-right: none; }
+    .step { border-bottom: 1px solid var(--rule); }
+  }
+  .step-num {
+    font-family: var(--serif); font-style: italic; font-size: 80px; line-height: 1; color: var(--gold-deep);
+    margin-bottom: 16px;
+  }
+  .step-title { font-family: var(--serif); font-size: 26px; color: var(--ink); margin-bottom: 12px; line-height: 1.15; }
+  .step-body { font-size: 14px; color: var(--ink-dim); line-height: 1.6; margin-bottom: 18px; }
+  .step-tag {
+    margin-top: auto; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+    color: var(--gold); text-transform: uppercase;
+  }
+
+  /* ---------- feature grid ---------- */
+  section.features { padding: 120px 0; border-top: 1px solid var(--rule-soft); }
+  .feature-grid {
+    margin-top: 64px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  @media (max-width: 860px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .feature-grid { grid-template-columns: 1fr; } }
+  .feature {
+    background: var(--bg); padding: 36px 32px; display: flex; flex-direction: column;
+    min-height: 240px;
+    transition: background .2s ease;
+  }
+  .feature:hover { background: var(--bg-2); }
+  .feature-no { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--gold); }
+  .feature-title { font-family: var(--serif); font-size: 28px; color: var(--ink); margin: 18px 0 14px; line-height: 1.1; }
+  .feature-body { font-size: 14px; color: var(--ink-dim); line-height: 1.6; flex: 1; }
+  .feature-meta {
+    margin-top: 22px; padding-top: 16px; border-top: 1px dashed var(--rule);
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em;
+  }
+  .feature-meta .k { color: var(--gold); }
+
+  /* ---------- routes block ---------- */
+  section.routes { padding: 120px 0; background: var(--bg-2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .routes-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 80px; align-items: center; }
+  @media (max-width: 980px) { .routes-grid { grid-template-columns: 1fr; gap: 48px; } }
+  .map-frame {
+    position: relative; aspect-ratio: 827/658; background: #07070d;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  .map-frame::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 55%, rgba(7,7,13,0.55) 100%),
+      linear-gradient(180deg, rgba(212,168,73,0.05), transparent 30%);
+  }
+  .map-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: contain; image-rendering: pixelated; image-rendering: crisp-edges;
+    filter: saturate(0.85) brightness(0.92) drop-shadow(0 0 24px rgba(212,168,73,0.18));
+  }
+  .map-grid-lines {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(212,168,73,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,168,73,0.05) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mix-blend-mode: overlay;
+  }
+  .map-coast {
+    position: absolute; inset: 0;
+  }
+  .map-coast svg { width: 100%; height: 100%; display: block; }
+  .map-pin {
+    position: absolute; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--gold-bright);
+    box-shadow: 0 0 0 4px rgba(212, 168, 73, 0.22), 0 0 24px var(--gold);
+    z-index: 4;
+  }
+  .map-pin.bandit { background: var(--crimson); box-shadow: 0 0 0 4px rgba(211, 107, 94, 0.25), 0 0 18px rgba(211, 107, 94, 0.6); }
+  .map-pin.guard { background: var(--emerald); box-shadow: 0 0 0 4px rgba(109, 190, 143, 0.22), 0 0 16px rgba(109, 190, 143, 0.55); }
+  .map-pin .lbl {
+    position: absolute; left: 18px; top: -4px; white-space: nowrap;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--ink); text-transform: uppercase;
+  }
+  .map-pin .lbl small { color: var(--ink-faint); display: block; letter-spacing: 0.08em; margin-top: 2px; }
+  .map-route {
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 2;
+  }
+  .map-corner {
+    position: absolute; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); letter-spacing: 0.16em; text-transform: uppercase;
+    background: rgba(7,7,13,0.7); padding: 4px 8px; backdrop-filter: blur(4px); z-index: 3;
+  }
+  .map-corner.tl { top: 14px; left: 14px; }
+  .map-corner.tr { top: 14px; right: 14px; color: var(--gold); }
+  .map-corner.bl { bottom: 14px; left: 14px; }
+  .map-corner.br { bottom: 14px; right: 14px; }
+  .map-legend { display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+  .map-legend .item { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--ink-dim); letter-spacing: 0.08em; }
+  .swatch { width: 10px; height: 10px; border-radius: 50%; }
+
+  .routes-body h2 { margin-top: 18px; }
+  .routes-body .lede { margin-top: 28px; max-width: 460px; }
+  .routes-list { margin-top: 36px; }
+  .routes-list .row {
+    display: grid; grid-template-columns: 22px 1fr auto; gap: 14px;
+    padding: 14px 0; border-bottom: 1px dashed var(--rule); align-items: center;
+  }
+  .routes-list .row .ico { color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 20px; }
+  .routes-list .row .l { font-size: 14px; color: var(--ink); }
+  .routes-list .row .l small { display: block; color: var(--ink-faint); font-size: 12px; margin-top: 4px; }
+  .routes-list .row .r { font-family: var(--mono); font-size: 11px; color: var(--gold); letter-spacing: 0.1em; }
+
+  /* ---------- market / dividends block ---------- */
+  section.market { padding: 120px 0; }
+  .market-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
+  @media (max-width: 980px) { .market-grid { grid-template-columns: 1fr; gap: 48px; } }
+  .market-body h2 { margin-top: 18px; }
+  .market-points { margin-top: 36px; display: flex; flex-direction: column; gap: 24px; }
+  .market-point {
+    padding-left: 22px; border-left: 1px solid var(--rule);
+  }
+  .market-point .t { font-family: var(--serif); font-size: 22px; color: var(--gold-bright); margin-bottom: 6px; }
+  .market-point .d { color: var(--ink-dim); font-size: 14px; line-height: 1.6; }
+
+  .market-card {
+    border: 1px solid var(--rule);
+    background: var(--bg-2);
+    padding: 28px;
+  }
+  .market-card-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+  .market-card-title { font-family: var(--serif); font-size: 22px; color: var(--gold-bright); }
+  .market-card-sub { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); letter-spacing: 0.18em; }
+  .holding {
+    display: grid; grid-template-columns: 32px 1fr auto auto;
+    gap: 12px; padding: 14px 0; align-items: center;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .holding:last-child { border-bottom: none; }
+  .holding .ico {
+    width: 32px; height: 32px; border: 1px solid var(--rule); background: var(--bg-3);
+    display: grid; place-items: center; font-family: var(--serif); font-style: italic; color: var(--gold); font-size: 18px;
+  }
+  .holding .name { font-size: 14px; color: var(--ink); }
+  .holding .name small { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); letter-spacing: 0.1em; margin-top: 2px; }
+  .holding .shares { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); }
+  .holding .chg { font-family: var(--mono); font-size: 12px; }
+  .holding .chg.up { color: var(--emerald); }
+  .holding .chg.dn { color: var(--crimson); }
+  .holding-foot {
+    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--gold);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .holding-foot .l { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.18em; }
+  .holding-foot .r { font-family: var(--serif); font-size: 26px; color: var(--gold-bright); }
+
+  /* ---------- specs ---------- */
+  section.specs { padding: 100px 0; border-top: 1px solid var(--rule-soft); background: #07070d; }
+  .spec-grid {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  @media (max-width: 860px) { .spec-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 540px) { .spec-grid { grid-template-columns: repeat(2, 1fr); } }
+  .spec {
+    background: #07070d; padding: 28px 20px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .spec .n {
+    font-family: var(--serif); font-size: 42px; color: var(--gold-bright); line-height: 1;
+  }
+  .spec .l { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--ink-faint); text-transform: uppercase; }
+
+  /* ---------- pricing ---------- */
+  section.pricing { padding: 140px 0; }
+  .price-card {
+    margin-top: 56px;
+    display: grid; grid-template-columns: 1.3fr 1fr; gap: 0;
+    border: 1px solid var(--gold);
+    position: relative;
+    background: linear-gradient(135deg, rgba(212,168,73,0.05), transparent 60%), var(--bg-2);
+  }
+  @media (max-width: 860px) { .price-card { grid-template-columns: 1fr; } }
+  .price-left { padding: 56px 48px; border-right: 1px solid var(--rule); }
+  @media (max-width: 860px) { .price-left { border-right: none; border-bottom: 1px solid var(--rule); } }
+  .price-left h3 { font-family: var(--serif); font-size: 36px; color: var(--ink); margin-bottom: 18px; }
+  .price-features { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+  .price-features li {
+    list-style: none; display: flex; gap: 12px; align-items: baseline;
+    color: var(--ink-dim); font-size: 14px;
+  }
+  .price-features li::before {
+    content: "✦"; color: var(--gold); font-size: 14px; flex-shrink: 0;
+  }
+  .price-right { padding: 56px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+  .price-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; }
+  .price-amount {
+    font-family: var(--serif); font-size: 92px; line-height: 0.9; color: var(--gold-bright); margin-top: 12px;
+    letter-spacing: -0.02em;
+  }
+  .price-amount .cents { font-size: 36px; vertical-align: super; }
+  .price-amount .cur { font-size: 36px; vertical-align: super; color: var(--gold-deep); }
+  .price-terms { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--ink-dim); margin-top: 14px; }
+  .price-cta { margin-top: 32px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .price-fine { margin-top: 24px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); letter-spacing: 0.16em; text-transform: uppercase; }
+
+  /* ---------- closing ---------- */
+  section.closing { padding: 140px 0; text-align: center; border-top: 1px solid var(--rule-soft); }
+  .closing h2 { font-family: var(--serif); font-size: clamp(56px, 7vw, 110px); line-height: 1; }
+  .closing h2 em { color: var(--gold-bright); font-weight: 400; }
+  .closing .lede { margin-top: 36px; max-width: 580px; margin-left: auto; margin-right: auto; }
+  .closing-cta { margin-top: 48px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---------- footer ---------- */
+  footer { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 56px; }
+  @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; } }
+  .footer-col h5 { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin: 0 0 16px; font-weight: 500; }
+  .footer-col a { display: block; color: var(--ink-dim); font-size: 13px; padding: 5px 0; transition: color .2s; }
+  .footer-col a:hover { color: var(--gold-bright); }
+  .footer-blurb { color: var(--ink-dim); font-size: 13px; line-height: 1.65; margin-top: 16px; max-width: 280px; }
+  .footer-base {
+    margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--rule-soft);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--ink-faint); text-transform: uppercase;
+  }
+
+  /* ---------- decorative ---------- */
+  .corner-rule {
+    position: relative;
+  }
+  .corner-rule::before, .corner-rule::after {
+    content: ""; position: absolute; width: 18px; height: 18px;
+    border: 1px solid var(--gold); pointer-events: none;
+  }
+  .corner-rule::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .corner-rule::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+  /* responsive hero spacing */
+  @media (max-width: 720px) {
+    section.hero { padding: 56px 0 72px; }
+    .hero-grid { gap: 36px; }
+    .receipt { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== NAV ============== -->
+<nav class="top">
+  <div class="inner">
+    <div class="brand">
+      <div class="brand-hex">
+        <svg viewBox="0 0 28 28" fill="none">
+          <path d="M14 1.5L25.5 8v12L14 26.5 2.5 20V8L14 1.5z" stroke="#d4a849" stroke-width="1.4"/>
+          <path d="M14 6L21 10v8l-7 4-7-4v-8l7-4z" stroke="#d4a849" stroke-width="0.8" opacity="0.6"/>
+          <circle cx="14" cy="14" r="2" fill="#f5d27a"/>
+        </svg>
+      </div>
+      <div class="brand-name">ScappiTrade</div>
+    </div>
+    <div class="nav-links">
+      <a href="#showcase">Showcase</a>
+      <a href="#loop">The Loop</a>
+      <a href="#features">Systems</a>
+      <a href="#routes">Routes</a>
+      <a href="#why">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#pricing" class="btn">Buy — $49.99</a>
+  </div>
+</nav>
+
+<!-- ============== TICKER ============== -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <!-- duplicated content to allow seamless looping -->
+    <span class="tick"><span class="sym">DIAM</span><span class="px">412g</span><span class="chg up">▲ 3.2%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">WHEAT</span><span class="px">2.40g</span><span class="chg dn">▼ 1.1%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">IRON</span><span class="px">38g</span><span class="chg up">▲ 0.8%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">OAK</span><span class="px">0.92g</span><span class="chg up">▲ 2.0%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">EMERALD</span><span class="px">156g</span><span class="chg dn">▼ 4.3%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">REDSTONE</span><span class="px">12g</span><span class="chg up">▲ 0.4%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">NETHERITE</span><span class="px">2,840g</span><span class="chg up">▲ 8.7%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">COAL</span><span class="px">3.10g</span><span class="chg dn">▼ 0.6%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">GLDFISH</span><span class="px">18g</span><span class="chg up">▲ 1.4%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">QUARTZ</span><span class="px">42g</span><span class="chg dn">▼ 2.1%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">LAPIS</span><span class="px">22g</span><span class="chg up">▲ 1.8%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">COPPER</span><span class="px">19g</span><span class="chg dn">▼ 0.3%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+
+    <!-- repeat -->
+    <span class="tick"><span class="sym">DIAM</span><span class="px">412g</span><span class="chg up">▲ 3.2%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">WHEAT</span><span class="px">2.40g</span><span class="chg dn">▼ 1.1%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">IRON</span><span class="px">38g</span><span class="chg up">▲ 0.8%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">OAK</span><span class="px">0.92g</span><span class="chg up">▲ 2.0%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">EMERALD</span><span class="px">156g</span><span class="chg dn">▼ 4.3%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">REDSTONE</span><span class="px">12g</span><span class="chg up">▲ 0.4%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">NETHERITE</span><span class="px">2,840g</span><span class="chg up">▲ 8.7%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">COAL</span><span class="px">3.10g</span><span class="chg dn">▼ 0.6%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">GLDFISH</span><span class="px">18g</span><span class="chg up">▲ 1.4%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">QUARTZ</span><span class="px">42g</span><span class="chg dn">▼ 2.1%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">LAPIS</span><span class="px">22g</span><span class="chg up">▲ 1.8%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+    <span class="tick"><span class="sym">COPPER</span><span class="px">19g</span><span class="chg dn">▼ 0.3%</span></span>
+    <span class="tick"><span class="sep">·</span></span>
+  </div>
+</div>
+
+<!-- ============== LIVE LEDGER ============== -->
+<div class="ledger" aria-hidden="true">
+  <div class="ledger-track" id="ledger-track"></div>
+</div>
+
+<!-- ============== HERO ============== -->
+<section class="hero">
+  <div class="motes" aria-hidden="true">
+    <span style="left:6%;  animation-delay:  0s; animation-duration: 26s;"></span>
+    <span style="left:18%; animation-delay:  4s; animation-duration: 22s;"></span>
+    <span style="left:31%; animation-delay:  9s; animation-duration: 30s;"></span>
+    <span style="left:44%; animation-delay:  1s; animation-duration: 24s;"></span>
+    <span style="left:58%; animation-delay:  6s; animation-duration: 28s;"></span>
+    <span style="left:67%; animation-delay: 12s; animation-duration: 23s;"></span>
+    <span style="left:78%; animation-delay:  3s; animation-duration: 27s;"></span>
+    <span style="left:88%; animation-delay: 10s; animation-duration: 25s;"></span>
+    <span style="left:95%; animation-delay:  7s; animation-duration: 21s;"></span>
+  </div>
+  <div class="container">
+    <div class="hero-grid">
+      <div class="reveal">
+        <div class="eyebrow">
+          <span class="marker">§</span> Trading Plugin <span class="dot">·</span> Paper 1.21.4+ <span class="dot">·</span> v1.0.0
+        </div>
+        <h1>
+          Real <em>cargo.</em><br/>
+          Real markets.<br/>
+          Real <em>risk.</em>
+        </h1>
+        <p class="hero-sub">
+          ScappiTrade turns every Minecraft item into a tradable commodity. Load a llama, dispatch it across the world, and watch supply, tax, and bandits decide your profit.
+          <br/><br/>
+          <span class="accent">— A trading economy for serious servers.</span>
+        </p>
+        <div class="hero-cta">
+          <a href="#pricing" class="btn">Buy the plugin →</a>
+          <a href="#loop" class="btn ghost">See how it works</a>
+        </div>
+        <div class="hero-meta">
+          <span><strong>Paper</strong> 1.21.4+</span>
+          <span><strong>Java</strong> 21</span>
+          <span><strong>SQLite</strong> + HikariCP</span>
+          <span><strong>Vault</strong> required</span>
+          <span><strong>Lands</strong> · Towny · GP</span>
+        </div>
+      </div>
+
+      <!-- right: dispatch receipt -->
+      <div class="receipt corner-rule reveal">
+        <div class="receipt-head">
+          <div class="receipt-title">Dispatch №&nbsp;0481</div>
+          <div class="receipt-num">21·V·2026 · 14:08</div>
+        </div>
+        <div class="receipt-section">
+          <div class="receipt-row"><span class="l">Caravan</span><span class="r">Trader llama · 54 slots</span></div>
+          <div class="receipt-row"><span class="l">Driver</span><span class="r">ScappiDoo</span></div>
+          <div class="receipt-row"><span class="l">From</span><span class="r gold">Goldhaven</span></div>
+          <div class="receipt-row"><span class="l">To</span><span class="r gold">Highmoor</span></div>
+          <div class="receipt-row"><span class="l">Route</span><span class="r">2,840 blocks · 4 jurisdictions</span></div>
+          <div class="receipt-row"><span class="l">Heartbeat</span><span class="r">20 ticks · snapshot × 100</span></div>
+        </div>
+        <div class="receipt-section">
+          <div class="receipt-row"><span class="l">Diamond</span><span class="r">×&nbsp;14 &nbsp; 412g</span></div>
+          <div class="receipt-row"><span class="l">Wheat</span><span class="r">×&nbsp;640 &nbsp; 2.4g</span></div>
+          <div class="receipt-row"><span class="l">Netherite scrap</span><span class="r">×&nbsp;2 &nbsp; 2,840g</span></div>
+          <div class="receipt-row"><span class="l">Empty slots</span><span class="r" style="color:var(--ink-faint)">×&nbsp;5 of 45</span></div>
+        </div>
+        <div class="receipt-section">
+          <div class="receipt-row"><span class="l">Cargo value (destination)</span><span class="r">17,420g</span></div>
+          <div class="receipt-row"><span class="l">Transit tax · 4 lands</span><span class="r">− 1,212g</span></div>
+          <div class="receipt-row"><span class="l">Maintenance · 5%</span><span class="r">− 871g</span></div>
+          <div class="receipt-row"><span class="l">Guard escort · Tier II</span><span class="r">− 800g</span></div>
+        </div>
+        <div class="receipt-total">
+          <span class="l">Net&nbsp;projected</span>
+          <span class="r">14,537g</span>
+        </div>
+        <div class="stamp">Dispatched</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SHOWCASE VIDEO ============== -->
+<section class="showcase" id="showcase">
+  <div class="container">
+    <div class="showcase-head">
+      <div>
+        <div class="eyebrow"><span class="marker">§ 01</span> <span class="dot">·</span> The Showcase</div>
+        <h2>Twenty-seven seconds of the realm <em>in motion.</em></h2>
+      </div>
+      <div class="showcase-meta">
+        <span><strong>27s</strong> Cinematic</span>
+        <span><strong>09</strong> Acts</span>
+        <span><strong>1920 × 1080</strong> Native</span>
+      </div>
+    </div>
+
+    <div class="showcase-frame corner-rule">
+      <div class="showcase-frame-corner tl">REC · V1.0.0</div>
+      <div class="showcase-frame-corner tr">27.0 s</div>
+      <div class="showcase-frame-corner bl">SCAPPITRADE — SHOWCASE</div>
+      <div class="showcase-frame-corner br">1920 × 1080</div>
+      <iframe
+        src="ScappiTrade Showcase.html"
+        title="ScappiTrade cinematic showcase"
+        loading="lazy"
+        allow="autoplay"
+      ></iframe>
+    </div>
+
+    <div class="showcase-strip">
+      <div class="chap">
+        <span class="tc">00:00 — 00:05</span>
+        <span class="ti">Logo · Sign-in</span>
+        <span class="ds">The cold open. Brand macro into the player’s sign-in card.</span>
+      </div>
+      <div class="chap">
+        <span class="tc">00:05 — 00:11</span>
+        <span class="ti">View picker · Dashboard</span>
+        <span class="ds">Choose player or admin view, then crack open the live dashboard.</span>
+      </div>
+      <div class="chap">
+        <span class="tc">00:11 — 00:17</span>
+        <span class="ti">World map</span>
+        <span class="ds">Caravans across the realm — player and admin overlays side by side.</span>
+      </div>
+      <div class="chap">
+        <span class="tc">00:17 — 00:27</span>
+        <span class="ti">Hero stack · Outro</span>
+        <span class="ds">The whole engine stacked, then a final price card to close the loop.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CARAVAN LOOP ============== -->
+<section class="loop" id="loop">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="marker">§ 02</span> <span class="dot">·</span> The Caravan Loop</div>
+      <div>
+        <h2>Open. Load. Dispatch. <em style="font-style:italic;color:var(--gold-bright);">Travel.</em> Arrive.</h2>
+        <p class="desc">Five phases. A heartbeat every 20 game ticks. A snapshot every 100. A server restart never loses a caravan in flight.</p>
+      </div>
+    </div>
+
+    <div class="loop-grid loop-grid-5">
+      <div class="step reveal">
+        <div class="step-num">i.</div>
+        <div class="step-title">Open</div>
+        <div class="step-body"><code class="inl">/caravan trade</code> opens a 54-slot dispatch GUI. Slot 49 shows the live destination value of what you've loaded so far.</div>
+        <div class="step-tag">/caravan trade</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">ii.</div>
+        <div class="step-title">Load</div>
+        <div class="step-body">Slots 0–44 hold real <code class="inl">ItemStack</code>s — NBT, durability, enchants and CMD preserved. Items serialise to Base64; the llama then spawns.</div>
+        <div class="step-tag">Trader llama · 45 cargo slots</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">iii.</div>
+        <div class="step-title">Dispatch</div>
+        <div class="step-body">Min cargo enforced (<code class="inl">min-cargo-value</code>). Source land's supply drains 10% of shipped quantity. Markers post to every enabled MapHook.</div>
+        <div class="step-tag">Squaremap · Dynmap · BlueMap</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">iv.</div>
+        <div class="step-title">Travel</div>
+        <div class="step-body">Waypoint pathfinding, 20-block step cap, 4-block arrival check. Anti-teleport at 50 blocks/tick. Wilderness flag is one-way — once vulnerable, stays vulnerable.</div>
+        <div class="step-tag">teleport-threshold = 50</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">v.</div>
+        <div class="step-title">Arrive</div>
+        <div class="step-body">Destination land's supply replenishes. Net payout = base − tax − maintenance. Stocks tick. Dividends accrue. The ledger writes a line.</div>
+        <div class="step-tag">net = base − tax − maint.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FEATURES ============== -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="marker">§ 03</span> <span class="dot">·</span> Systems</div>
+      <div>
+        <h2>Nine systems. <em style="font-style:italic;color:var(--gold-bright);">One economy.</em></h2>
+        <p class="desc">Each module is opt-in. Run only the caravan loop, or wire the whole engine: four-type exchange, dividends, three-tier guards, embargoes, contracts.</p>
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature reveal">
+        <div class="feature-no">/ 01</div>
+        <div class="feature-title">Per-land price engine</div>
+        <div class="feature-body"><code class="inl">price = clamp(base × (BASE_SUPPLY/supply)^sensitivity, min, max)</code>. Source drains on dispatch, destination replenishes on arrival, hourly recovery nudges every cache back toward baseline.</div>
+        <div class="feature-meta"><span class="k">items/</span> · 37 catalogued materials</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 02</div>
+        <div class="feature-title">Four-type stock exchange</div>
+        <div class="feature-body">Route stocks (+5% / −15%), Land stocks (activity score), Commodity indices (server-wide S/D), and Company shares — all on the same order book, with OHLC history.</div>
+        <div class="feature-meta"><span class="k">/caravan stocks</span> · chest GUI + REST</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 03</div>
+        <div class="feature-title">Four company types</div>
+        <div class="feature-body">Every player owns one <strong>PLAYER</strong> company. Lands and nations may list <strong>LAND</strong> and <strong>NATION</strong> shares. Admins charter <strong>ROUTE</strong> companies on specific lanes.</div>
+        <div class="feature-meta"><span class="k">crash %</span> scaled by caravan failure</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 04</div>
+        <div class="feature-title">Diplomacy &amp; embargoes</div>
+        <div class="feature-body">Trade agreements flow <code class="inl">PENDING → ACTIVE → EMBARGO</code>. Import tax up to 15% paid to the land owner. Embargoes block direct dispatch entirely.</div>
+        <div class="feature-meta"><span class="k">/diplomacy</span> · Lands · Towny</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 05</div>
+        <div class="feature-title">Three-tier guard escorts</div>
+        <div class="feature-body">Vindicator NPCs at Tier I / II / III against PvP and bandit raids. Bandit camps spawn fully-configurable ambushes — Trade Crate drops and vault-paid bounties.</div>
+        <div class="feature-meta"><span class="k">ambush-crate-pct</span> = 0.40</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 06</div>
+        <div class="feature-title">48-endpoint web dashboard</div>
+        <div class="feature-body">Embedded HTTP server on <code class="inl">0.0.0.0:25578</code> with a live Leaflet map proxied through the plugin — works on any port without CORS gymnastics.</div>
+        <div class="feature-meta"><span class="k">6 admin tabs</span> · session-guarded</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 07</div>
+        <div class="feature-title">Per-land transit tax</div>
+        <div class="feature-body">Towns set their own tariff curves. Players can route around — at a cost in distance and risk. Land cut 5%, nation cut 3%.</div>
+        <div class="feature-meta"><span class="k">land-investor-cut</span> 5%</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 08</div>
+        <div class="feature-title">Physical market stalls</div>
+        <div class="feature-body">Place a Trade Writ at a stall to deliver gold-bonus contracts. Bandit camps drop Trade Crates. The whole loop has tangible artefacts.</div>
+        <div class="feature-meta"><span class="k">TradeAgreementManager</span></div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 09</div>
+        <div class="feature-title">32 PAPI placeholders</div>
+        <div class="feature-body">Drop <code class="inl">%scappi_*%</code> into any scoreboard, chat or HUD plugin. Prices, holdings, P/L, caravan ETA, route risk — all live.</div>
+        <div class="feature-meta"><span class="k">placeholders.yml</span> · 32 keys</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ROUTES ============== -->
+<section class="routes" id="routes">
+  <div class="container">
+    <div class="routes-grid">
+      <div class="map-frame">
+        <img class="map-img" src="assets/world-map.png" alt="ScappiTrade world map" />
+        <div class="map-grid-lines"></div>
+        <div class="map-corner tl">N 48° · W 124°</div>
+        <div class="map-corner tr">LIVE · 14:08</div>
+        <div class="map-corner bl">SCALE · 1:480</div>
+        <div class="map-corner br">CARAVANS · 12</div>
+
+        <!-- routes drawn over the real map -->
+        <svg class="map-route" viewBox="0 0 100 75" preserveAspectRatio="none">
+          <!-- main route: Port Calder → Westmarch → Highrook -->
+          <path d="M22,36 Q34,28 46,46 Q58,54 70,42" fill="none" stroke="#f5d27a" stroke-width="0.4" stroke-dasharray="1.2 0.8" opacity="0.95"/>
+          <!-- secondary route -->
+          <path d="M46,46 Q52,58 60,68" fill="none" stroke="#d4a849" stroke-width="0.3" stroke-dasharray="0.8 0.6" opacity="0.55"/>
+          <!-- danger detour -->
+          <path d="M70,42 Q78,54 82,64" fill="none" stroke="#d36b5e" stroke-width="0.35" stroke-dasharray="0.6 0.6" opacity="0.7"/>
+        </svg>
+
+        <!-- Animated caravan llama traversing the route -->
+        <div class="map-caravan" aria-hidden="true"><div class="map-caravan-glyph"></div></div>
+
+        <!-- pins placed on actual terrain -->
+        <div class="map-pin" style="left:22%; top:36%;">
+          <div class="lbl">Port Calder<small>HUB · 84 traders</small></div>
+        </div>
+        <div class="map-pin" style="left:46%; top:46%;">
+          <div class="lbl">Westmarch<small>MARKET</small></div>
+        </div>
+        <div class="map-pin" style="left:70%; top:42%;">
+          <div class="lbl">Highrook<small>MARKET · TAX 12%</small></div>
+        </div>
+        <div class="map-pin bandit" style="left:82%; top:64%;">
+          <div class="lbl" style="color:var(--crimson)">Ash Wood<small>BANDIT · DANGER 4</small></div>
+        </div>
+        <div class="map-pin guard" style="left:50%; top:70%;">
+          <div class="lbl" style="color:var(--emerald)">Sentinel<small>GUARD POST</small></div>
+        </div>
+      </div>
+
+      <div class="routes-body">
+        <div class="eyebrow"><span class="marker">§ 04</span> <span class="dot">·</span> The world has weight</div>
+        <h2>A map that <em style="font-style:italic;color:var(--gold-bright);">remembers.</em></h2>
+        <p class="lede">Every dispatch logs a route. Routes accrue traffic. Traffic attracts bandits — and the towns they pass through learn to charge more.</p>
+
+        <div class="routes-list">
+          <div class="row">
+            <span class="ico">i</span>
+            <span class="l">Live caravan tracking<small>Watch every llama in transit across Squaremap, Dynmap, and BlueMap overlays.</small></span>
+            <span class="r">overlay</span>
+          </div>
+          <div class="row">
+            <span class="ico">ii</span>
+            <span class="l">Adaptive bandit spawning<small>Risk weighted by cargo value, route history, and time of day. The first caravan is safe. The hundredth is not.</small></span>
+            <span class="r">npc</span>
+          </div>
+          <div class="row">
+            <span class="ico">iii</span>
+            <span class="l">Per-land transit tax<small>Towns set their own tariff curves. Players can route around — at a cost in distance and risk.</small></span>
+            <span class="r">tax.yml</span>
+          </div>
+          <div class="row">
+            <span class="ico">iv</span>
+            <span class="l">Insurance & escort markets<small>Underwrite other players' dispatches. Take a premium. Pay out on losses. A real second-order economy.</small></span>
+            <span class="r">market</span>
+          </div>
+        </div>
+
+        <div class="map-legend">
+          <div class="item"><span class="swatch" style="background:var(--gold-bright);box-shadow:0 0 8px var(--gold)"></span>Market hub</div>
+          <div class="item"><span class="swatch" style="background:var(--emerald)"></span>Guard post</div>
+          <div class="item"><span class="swatch" style="background:var(--crimson)"></span>Bandit territory</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MARKET / DIVIDENDS ============== -->
+<section class="market" id="market">
+  <div class="container">
+    <div class="market-grid">
+      <div class="market-body">
+        <div class="eyebrow"><span class="marker">§ 05</span> <span class="dot">·</span> The Exchange</div>
+        <h2>Not <em style="font-style:italic;color:var(--gold-bright);">just</em> traders. <em style="font-style:italic;color:var(--gold-bright);">Investors.</em></h2>
+        <p class="lede">Players charter companies, list them on the exchange, and pay dividends from caravan revenue. The town with the best traders becomes the town worth buying into.</p>
+
+        <div class="market-points">
+          <div class="market-point">
+            <div class="t">Limit & market orders</div>
+            <div class="d">A real order book — bids, asks, depth, last-print. /exchange opens a chest-GUI that talks the same protocol as the web dashboard.</div>
+          </div>
+          <div class="market-point">
+            <div class="t">Quarterly dividends, paid in gold</div>
+            <div class="d">Companies declare a dividend rate; the plugin pays it out automatically from the company vault every in-game quarter.</div>
+          </div>
+          <div class="market-point">
+            <div class="t">Board governance</div>
+            <div class="d">Majority holders vote on dividend rate, employee hires, route monopolies. Small shareholders can sell into liquidity.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="market-card corner-rule">
+        <div class="market-card-head">
+          <div class="market-card-title">Portfolio · ScappiDoo</div>
+          <div class="market-card-sub">21·V·26 · LIVE</div>
+        </div>
+        <div class="holding">
+          <div class="ico">N</div>
+          <div class="name">Northwind Freight<small>NWF · LOGISTICS</small></div>
+          <div class="shares">240 sh</div>
+          <div class="chg up">+ 18.4%</div>
+        </div>
+        <div class="holding">
+          <div class="ico">H</div>
+          <div class="name">Highrook Mining Co.<small>HRMC · EXTRACTION</small></div>
+          <div class="shares">88 sh</div>
+          <div class="chg up">+ 6.1%</div>
+        </div>
+        <div class="holding">
+          <div class="ico">P</div>
+          <div class="name">Port Calder Granary<small>PCG · AGRICULTURE</small></div>
+          <div class="shares">512 sh</div>
+          <div class="chg dn">− 2.4%</div>
+        </div>
+        <div class="holding">
+          <div class="ico">S</div>
+          <div class="name">Sentinel Insurance<small>SNTL · FINANCE</small></div>
+          <div class="shares">42 sh</div>
+          <div class="chg up">+ 11.0%</div>
+        </div>
+        <div class="holding">
+          <div class="ico">A</div>
+          <div class="name">Ashwood Salvage<small>ASWG · SPECULATIVE</small></div>
+          <div class="shares">120 sh</div>
+          <div class="chg dn">− 14.2%</div>
+        </div>
+        <div class="holding-foot">
+          <span class="l">Net worth</span>
+          <span class="r">84,210g</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SPECS ============== -->
+<section class="specs">
+  <div class="container">
+    <div class="eyebrow"><span class="marker">§ 06</span> <span class="dot">·</span> Under the hood — every number real</div>
+    <div class="spec-grid">
+      <div class="spec reveal"><div class="n countup" data-to="33824" data-prefix="~" data-suffix="">~33,824</div><div class="l">Java LOC</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="133">133</div><div class="l">Java files</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="47">47</div><div class="l">DB tables</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="48">48</div><div class="l">REST endpoints</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="37">37</div><div class="l">Item types</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="32">32</div><div class="l">PAPI placeholders</div></div>
+    </div>
+    <div class="footnote">
+      <sup>¹</sup> Every number above is real. They are not feature checkboxes — they are the count of physical files, tables, and endpoints in the shipped JAR.
+    </div>
+  </div>
+</section>
+
+<!-- ============== WHY $49.99 ============== -->
+<section class="why" id="why">
+  <div class="container">
+    <div class="why-grid">
+      <div class="why-body reveal">
+        <div class="eyebrow"><span class="marker">§ 07</span> <span class="dot">·</span> The honest case for the price</div>
+        <h2>Why it costs <em style="font-style:italic;color:var(--gold-bright);">$49.99.</em></h2>
+        <p class="lede">Most "trade plugins" on the marketplace are wrappers around <code class="inl">setBlock</code> and a price config. ScappiTrade ships an entire economic stack.</p>
+        <p>A <strong>real price engine</strong> — per-land supply maps, source drain on dispatch, destination replenishment on arrival, hourly recovery toward baseline.</p>
+        <p>A <strong>real stock exchange</strong> — three index types <em>plus</em> four company types with crash percentages scaled by how far the caravan got before dying. OHLC history persisted to disk.</p>
+        <p>A <strong>real dashboard</strong> — 4,806 lines of embedded HTTP server with a sessioned admin panel, route CRUD with on-map waypoint placement, and a tile-proxied Leaflet map that works on any port.</p>
+        <div class="why-sig">
+          <div>
+            <div class="sg">— ScappiDoo</div>
+            <div class="ti">Author · sole maintainer · three years</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-paying reveal">
+        <div class="why-paying-h">
+          <span class="t">What you are paying for</span>
+          <span class="t" style="color:var(--ink-faint)">v1.0.0</span>
+        </div>
+        <div class="why-paying-row"><span class="l">Java source files</span><span class="r">133</span></div>
+        <div class="why-paying-row"><span class="l">Lines of plugin code</span><span class="r">~33,824</span></div>
+        <div class="why-paying-row"><span class="l">Database tables (schema v15)</span><span class="r">47</span></div>
+        <div class="why-paying-row"><span class="l">REST endpoints (admin + player)</span><span class="r">48</span></div>
+        <div class="why-paying-row"><span class="l">Brigadier subcommands</span><span class="r">63</span></div>
+        <div class="why-paying-row"><span class="l">PAPI placeholders</span><span class="r">32</span></div>
+        <div class="why-paying-row"><span class="l">Soft-dep integrations</span><span class="r">12</span></div>
+        <div class="why-paying-row"><span class="l">Item-market entries</span><span class="r">37</span></div>
+      </div>
+    </div>
+
+    <div class="footnote">
+      <sup>²</sup> Roadmap: raise to $59.99 after 15 verified reviews. This is early-adopter pricing while the catalogue and dashboard mature — the price never drops below $49.99 for licenses purchased now.
+    </div>
+  </div>
+</section>
+
+<!-- ============== ROADMAP ============== -->
+<section class="roadmap" id="roadmap">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="marker">§ 08</span> <span class="dot">·</span> Roadmap</div>
+      <div>
+        <h2>Shipped. Shipping. <em style="font-style:italic;color:var(--gold-bright);">Soon.</em></h2>
+        <p class="desc">Lifetime updates means every milestone below is included in the one-time license.</p>
+      </div>
+    </div>
+
+    <div class="roadmap-grid">
+      <div class="rm-cell reveal">
+        <div class="rm-dot"></div>
+        <div class="rm-ver">v1.0.0 <em>shipped</em></div>
+        <div class="rm-when">21 · V · 2026</div>
+        <ul class="rm-list">
+          <li>Caravan loop, price engine, four-type exchange</li>
+          <li>Diplomacy, embargoes, three-tier guards</li>
+          <li>48-endpoint web dashboard with Leaflet map</li>
+          <li>PAPI, Vault, Lands &amp; Towny integration</li>
+        </ul>
+      </div>
+      <div class="rm-cell current reveal">
+        <div class="rm-dot"></div>
+        <div class="rm-ver">v1.1 <em>in flight</em></div>
+        <div class="rm-when">Q3 · 2026</div>
+        <ul class="rm-list">
+          <li>Dispatch contracts &amp; freight bidding</li>
+          <li>OHLC candle charts in the chest GUI</li>
+          <li>Postgres adapter (parity with SQLite)</li>
+          <li>Bandit-camp loot tables expanded</li>
+        </ul>
+      </div>
+      <div class="rm-cell future reveal">
+        <div class="rm-dot"></div>
+        <div class="rm-ver">v1.2 <em>planned</em></div>
+        <div class="rm-when">Q4 · 2026</div>
+        <ul class="rm-list">
+          <li>Cross-server caravans (BungeeCord / Velocity)</li>
+          <li>Trade Writ NFT-style serialisation</li>
+          <li>Customs offices &amp; tariff inspection</li>
+        </ul>
+      </div>
+      <div class="rm-cell future reveal">
+        <div class="rm-dot"></div>
+        <div class="rm-ver">v2.0 <em>vision</em></div>
+        <div class="rm-when">2027</div>
+        <ul class="rm-list">
+          <li>Player-run banks &amp; lending markets</li>
+          <li>Letter-of-credit settlement</li>
+          <li>Insurance underwriting as a market</li>
+          <li>Macro-economic events (drought, war)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FAQ ============== -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="faq-grid">
+      <div class="reveal">
+        <div class="eyebrow"><span class="marker">§ 09</span> <span class="dot">·</span> Things people ask</div>
+        <h2>Plainly answered.</h2>
+        <p class="desc" style="margin-top:24px;">Six questions every server admin sends before clicking buy. Honest answers below.</p>
+      </div>
+
+      <div class="faq-list reveal">
+        <div class="faq-item open">
+          <div class="faq-q">
+            <span class="num">i.</span>
+            <span class="qt">Does it work alongside my existing economy plugin?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Yes. ScappiTrade routes every gold movement through Vault, so any Vault-compatible economy (EssentialsX, CMI, TheNewEconomy, etc.) is the single source of truth for balances. ScappiTrade only persists holdings, orders, and ledger — not balances.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">ii.</span>
+            <span class="qt">What if I don't use Lands or Towny?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>You can still run the entire caravan loop and exchange. Without a land plugin, tax windows fall back to per-world brackets defined in <code class="inl">tax.yml</code>. Lands/Towny is recommended (the diplomacy layer needs jurisdictions to be interesting) but not required.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">iii.</span>
+            <span class="qt">Will dispatching caravans tank my server's TPS?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>The heartbeat ticks every 20 game ticks (1 second) with a 20-block pathfinding step cap. Real-world: a server running 60 simultaneous caravans on a Ryzen 5 5600 sits around 0.4ms / tick. The map proxy and exchange run on async threads, not the main thread.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">iv.</span>
+            <span class="qt">Do I need to expose a port for the web dashboard?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>The dashboard binds to <code class="inl">0.0.0.0:25578</code> by default and is fully optional. For production, put Nginx or Caddy in front for HTTPS — the docs cover this explicitly. If you don't want a dashboard at all, leave the analytics module disabled in <code class="inl">config.yml</code>.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">v.</span>
+            <span class="qt">Can I customise prices, taxes, guard tiers?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Yes. <code class="inl">config.yml</code> has 550+ keys covering supply sensitivity, recovery rates, tax brackets, guard tiers, ambush probabilities, dividend cadence, share-crash percentages, and ledger retention. The item catalogue is a folder of YAML files — add or edit categories without restarting.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">vi.</span>
+            <span class="qt">What's the license really say?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>One Minecraft server per license, any player count. Lifetime updates including the 2.x line. No telemetry. No license server phone-home. The JAR is IP-locked at first start. Network (BungeeCord/Velocity) licenses on request — ask before you buy.</p>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SERVER STRIP ============== -->
+<section class="servers">
+  <div class="container">
+    <div class="servers-head">
+      <h3>Now running on <em style="font-family:var(--serif);font-style:italic;color:var(--gold-bright);font-weight:400;">handpicked servers.</em></h3>
+      <div class="lbl">Showcase · selected, not exhaustive</div>
+    </div>
+    <div class="servers-grid">
+      <div class="server-card reveal">
+        <div class="nm">Goldhaven</div>
+        <div class="mt">RP · EU · ☆ 4.8</div>
+        <div class="ds">Mercantile roleplay, 240 daily actives.</div>
+      </div>
+      <div class="server-card reveal">
+        <div class="nm">Highmoor</div>
+        <div class="mt">TOWNY · NA-E · ☆ 4.7</div>
+        <div class="ds">Towny survival, season 4.</div>
+      </div>
+      <div class="server-card reveal">
+        <div class="nm">Silverbrook</div>
+        <div class="mt">LANDS · NA-W</div>
+        <div class="ds">Trade-focused SMP, weekly auctions.</div>
+      </div>
+      <div class="server-card reveal">
+        <div class="nm">Ironpass</div>
+        <div class="mt">MEDIEVAL · EU · ☆ 4.9</div>
+        <div class="ds">Hardcore PvP, escort contracts.</div>
+      </div>
+      <div class="server-card reveal">
+        <div class="nm">Redforge</div>
+        <div class="mt">FACTIONS · AS</div>
+        <div class="ds">Cross-faction trade lanes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PRICING ============== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="marker">§ 10</span> <span class="dot">·</span> One price. No subscription.</div>
+      <div>
+        <h2>Buy <em style="font-style:italic;color:var(--gold-bright);">once.</em> Run forever.</h2>
+        <p class="desc">A single license per server. Lifetime updates. No telemetry. No license server. The JAR sits on your machine.</p>
+      </div>
+    </div>
+
+    <div class="price-card corner-rule">
+      <div class="wax-seal" aria-hidden="true">
+        <div class="wax-seal-inner">
+          <div class="top">Authenticated</div>
+          <div class="ver">v1.0</div>
+          <div class="bot">MMXXVI</div>
+        </div>
+      </div>
+      <div class="price-left">
+        <div class="price-tag">Full server license</div>
+        <h3>ScappiTrade <em style="font-style:italic;color:var(--gold-bright);">v1.0.0</em></h3>
+        <ul class="price-features">
+          <li>All nine systems — caravan loop, exchange, companies, dispatch contracts, embargo, guards, dashboard.</li>
+          <li>Lifetime updates including the 2.x line — no upgrade pricing.</li>
+          <li>Customizable</li>
+          <li>SQLite by default — MySQL/Postgres adapters bundled, no extra license.</li>
+          <li>Source available for self-hosted servers paying the license.</li>
+        </ul>
+      </div>
+      <div class="price-right">
+        <div>
+          <div class="price-tag">One-time</div>
+          <div class="price-amount"><span class="cur">$</span>49<span class="cents">.99</span></div>
+          <div class="price-terms">— or 12,500g <span style="color:var(--ink-faint)">if you'd rather pay in-game.</span></div>
+        </div>
+        <div>
+          <div class="price-cta">
+            <a href="#" class="btn">Buy on Polymart →</a>
+            <a href="#" class="btn ghost">SpigotMC</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CLOSING ============== -->
+<section class="closing">
+  <div class="container">
+    <div class="eyebrow"><span class="marker">∎</span> <span class="dot">·</span> Open the gates</div>
+    <h2>The realm is <em>waiting</em> for cargo.</h2>
+    <p class="lede">Drop the JAR, open the wiki, charter a company by the second night. Servers are running it now.</p>
+    <div class="closing-cta">
+      <a href="#pricing" class="btn">Buy — $49.99</a>
+      <a href="#" class="btn ghost">Read the wiki</a>
+      <a href="#" class="btn ghost">Watch the showcase</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="brand">
+          <div class="brand-hex">
+            <svg viewBox="0 0 28 28" fill="none">
+              <path d="M14 1.5L25.5 8v12L14 26.5 2.5 20V8L14 1.5z" stroke="#d4a849" stroke-width="1.4"/>
+              <circle cx="14" cy="14" r="2" fill="#f5d27a"/>
+            </svg>
+          </div>
+          <div class="brand-name">ScappiTrade</div>
+        </div>
+        <p class="footer-blurb">A trading-economy plugin for Paper servers. Built solo over three years. Not affiliated with Mojang.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="#loop">The caravan loop</a>
+        <a href="#features">Systems</a>
+        <a href="#market">Exchange</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+      <div class="footer-col">
+        <h5>Docs</h5>
+        <a href="#">Wiki</a>
+        <a href="#">Commands</a>
+        <a href="#">Permissions</a>
+        <a href="#">Integrations</a>
+      </div>
+      <div class="footer-col">
+        <h5>Community</h5>
+        <a href="#">GitHub issues</a>
+        <a href="#">Server showcase</a>
+        <a href="#">Changelog</a>
+      </div>
+    </div>
+    <div class="footer-base">
+      <div>© 2026 ScappiTrade · Made in solitude</div>
+      <div>v 1.0.0 · 21·V·2026</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============== ACCENT PICKER ============== -->
+<div class="accent-picker" id="accent-picker" aria-label="Accent color">
+  <span>Accent</span>
+  <div class="accent-swatch active" data-accent="gold"    style="background:#d4a849;color:#d4a849" title="Gold"></div>
+  <div class="accent-swatch"        data-accent="emerald" style="background:#6dbe8f;color:#6dbe8f" title="Emerald"></div>
+  <div class="accent-swatch"        data-accent="royal"   style="background:#7e8bd8;color:#7e8bd8" title="Royal"></div>
+  <div class="accent-swatch"        data-accent="crimson" style="background:#c4625a;color:#c4625a" title="Crimson"></div>
+</div>
+
+<!-- ============== SCRIPTS ============== -->
+<script>
+(function() {
+  // ---------- Ledger generation ----------
+  const NAMES = ['ScappiDoo', 'ardvarr', 'Foxglove', 'Mareth', 'Iskandar', 'Tobyn', 'Veska', 'Cael', 'Brindle', 'Orin', 'Saela', 'Wrenn', 'Halix', 'Mira'];
+  const FROMS = ['Goldhaven', 'Highmoor', 'Silverbrook', 'Ironpass', 'Redforge', 'Port Calder', 'Westmarch'];
+  const TOS   = ['Highmoor', 'Goldhaven', 'Redforge', 'Silverbrook', 'Ironpass', 'Westmarch', 'Port Calder'];
+  const ITEMS = ['diamond', 'wheat', 'iron ingot', 'oak log', 'netherite scrap', 'redstone', 'emerald', 'coal', 'quartz', 'copper', 'lapis'];
+  const TICKERS = ['NWF', 'HRMC', 'PCG', 'SNTL', 'ASWG', 'GLDH', 'IRNPS'];
+  const VERBS = [
+    () => `dispatched ${rand(2, 64)} \u00d7 ${pick(ITEMS)} \u2192 ${pick(TOS)}`,
+    () => `arrived at ${pick(TOS)} \u2014 net <span class="amt up">+${rand(800, 6400).toLocaleString()}g</span>`,
+    () => `ambushed near ${pick(FROMS)} \u2014 <span class="amt dn">\u2212 ${rand(400, 2200).toLocaleString()}g</span> Trade Crate dropped`,
+    () => `bought <span class="who">${rand(5, 80)} sh</span> of <span class="who">${pick(TICKERS)}</span> @ ${rand(80, 380)}g`,
+    () => `paid ${rand(40, 320)}g dividend to ${rand(4, 32)} shareholders`,
+    () => `chartered new ROUTE company \u2014 ${pick(FROMS)} \u2194 ${pick(TOS)}`,
+    () => `escort \u2014 Tier ${pick(['I', 'II', 'III'])} \u2014 contracted for ${rand(400, 1800)}g`,
+    () => `embargo declared by ${pick(FROMS)} on ${pick(ITEMS)}`,
+  ];
+  function rand(a, b) { return Math.floor(a + Math.random() * (b - a + 1)); }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function makeTs() {
+    const h = String(rand(0, 23)).padStart(2, '0');
+    const m = String(rand(0, 59)).padStart(2, '0');
+    return `${h}:${m}`;
+  }
+  function makeEvent() {
+    return `<span class="ledger-event"><span class="dot"></span><span class="ts">${makeTs()}</span><span class="who">${pick(NAMES)}</span><span class="what">${pick(VERBS)()}</span></span>`;
+  }
+  const track = document.getElementById('ledger-track');
+  if (track) {
+    const events = Array.from({ length: 18 }, makeEvent).join('');
+    track.innerHTML = events + events; // duplicate for seamless loop
+  }
+
+  // ---------- Scroll reveals ----------
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+  }
+
+  // ---------- Count-up on specs ----------
+  function animateCount(el) {
+    const to = parseInt(el.dataset.to, 10);
+    if (isNaN(to)) return;
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const dur = 1200;
+    const start = performance.now();
+    const startVal = 0;
+    function frame(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.round(startVal + (to - startVal) * eased);
+      el.textContent = prefix + val.toLocaleString() + suffix;
+      if (t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  if ('IntersectionObserver' in window) {
+    const countIo = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCount(e.target);
+          countIo.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.countup').forEach(el => countIo.observe(el));
+  }
+
+  // ---------- FAQ accordion ----------
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      item.classList.toggle('open');
+    });
+  });
+
+  // ---------- Accent picker ----------
+  const ACCENTS = {
+    gold:    { gold: '#d4a849', goldBright: '#f5d27a', goldDeep: '#9b7a2e', rule: 'rgba(212,168,73,0.18)', ruleSoft: 'rgba(212,168,73,0.08)', ink: '#f1e6c9', inkDim: '#b8a982', inkFaint: '#7a6e54' },
+    emerald: { gold: '#6dbe8f', goldBright: '#9fe3b5', goldDeep: '#3d8a5f', rule: 'rgba(109,190,143,0.20)', ruleSoft: 'rgba(109,190,143,0.10)', ink: '#e6f1ea', inkDim: '#9ec5af', inkFaint: '#6a8c79' },
+    royal:   { gold: '#7e8bd8', goldBright: '#b0bcff', goldDeep: '#4a558f', rule: 'rgba(126,139,216,0.22)', ruleSoft: 'rgba(126,139,216,0.10)', ink: '#e6e8f6', inkDim: '#a8acce', inkFaint: '#7378a0' },
+    crimson: { gold: '#c4625a', goldBright: '#e89a90', goldDeep: '#7e3a34', rule: 'rgba(196,98,90,0.22)', ruleSoft: 'rgba(196,98,90,0.10)', ink: '#f6e7e5', inkDim: '#caa39e', inkFaint: '#8c6864' },
+  };
+  const root = document.documentElement;
+  function applyAccent(name) {
+    const a = ACCENTS[name];
+    if (!a) return;
+    root.style.setProperty('--gold',        a.gold);
+    root.style.setProperty('--gold-bright', a.goldBright);
+    root.style.setProperty('--gold-deep',   a.goldDeep);
+    root.style.setProperty('--rule',        a.rule);
+    root.style.setProperty('--rule-soft',   a.ruleSoft);
+    root.style.setProperty('--ink',         a.ink);
+    root.style.setProperty('--ink-dim',     a.inkDim);
+    root.style.setProperty('--ink-faint',   a.inkFaint);
+    try { localStorage.setItem('scappitrade-accent', name); } catch (e) {}
+  }
+  document.querySelectorAll('#accent-picker .accent-swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      document.querySelectorAll('#accent-picker .accent-swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      applyAccent(sw.dataset.accent);
+    });
+  });
+  try {
+    const saved = localStorage.getItem('scappitrade-accent');
+    if (saved && ACCENTS[saved]) {
+      document.querySelectorAll('#accent-picker .accent-swatch').forEach(s => s.classList.toggle('active', s.dataset.accent === saved));
+      applyAccent(saved);
+    }
+  } catch (e) {}
+})();
+</script>
+
+</body>
+</html>
