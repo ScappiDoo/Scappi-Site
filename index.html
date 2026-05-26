@@ -777,7 +777,8 @@
       <a href="#showcase">Showcase</a>
       <a href="#loop">The Loop</a>
       <a href="#features">Systems</a>
-      <a href="#routes">Routes</a>
+      <a href="#routes">Map &amp; Routes</a>
+      <a href="#scappimap">ScappiMap</a>
       <a href="#why">Pricing</a>
       <a href="#faq">FAQ</a>
     </div>
@@ -886,6 +887,8 @@
           <span><strong>SQLite</strong> + HikariCP</span>
           <span><strong>Vault</strong> required</span>
           <span><strong>Lands</strong> · Towny · GP</span>
+          <span><strong>ScappiMap</strong> built-in</span>
+          <span><strong>ScappiGuard</strong> regions</span>
         </div>
       </div>
 
@@ -1030,8 +1033,8 @@
     <div class="section-head">
       <div class="eyebrow"><span class="marker">§ 03</span> <span class="dot">·</span> Systems</div>
       <div>
-        <h2>Nine systems. <em style="font-style:italic;color:var(--gold-bright);">One economy.</em></h2>
-        <p class="desc">Each module is opt-in. Run only the caravan loop, or wire the whole engine: four-type exchange, dividends, three-tier guards, embargoes, contracts.</p>
+        <h2>Twelve systems. <em style="font-style:italic;color:var(--gold-bright);">One economy.</em></h2>
+        <p class="desc">Each module is opt-in. Run only the caravan loop, or wire the whole engine: four-type exchange, dividends, three-tier guards, embargoes, contracts, built-in map renderer, region protection, and Fog of War.</p>
       </div>
     </div>
 
@@ -1090,6 +1093,24 @@
         <div class="feature-body">Drop <code class="inl">%scappi_*%</code> into any scoreboard, chat or HUD plugin. Prices, holdings, P/L, caravan ETA, route risk — all live.</div>
         <div class="feature-meta"><span class="k">placeholders.yml</span> · 32 keys</div>
       </div>
+      <div class="feature reveal" id="scappimap">
+        <div class="feature-no">/ 10</div>
+        <div class="feature-title">ScappiMap</div>
+        <div class="feature-body">Built-in async tile renderer — no external map plugin required. Up to 4 render threads, four zoom levels (0–3), PNG or WebP output, and live layers for lands, caravans, routes, and bandit camps. Marker JSON refreshes every 5 seconds. Falls back gracefully when Squaremap, Dynmap, or BlueMap are detected.</div>
+        <div class="feature-meta"><span class="k">render-threads</span> · tile 300s · markers 5s</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 11</div>
+        <div class="feature-title">ScappiGuard Lands</div>
+        <div class="feature-body">Custom region-protection system tightly integrated with the land and nation engine. Eight configurable flags — PvP, block-break, block-place, mob-spawning, explosion, entry, chest-access, fire-spread — each set to ALLOW / DENY / DEFAULT per region. Blaze-rod wand selection, multiple owners, sub-plot granularity.</div>
+        <div class="feature-meta"><span class="k">/sg define</span> · 8 flags · ALLOW / DENY / DEFAULT</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 12</div>
+        <div class="feature-title">Fog of War</div>
+        <div class="feature-body">Caravan positions are hidden in the wilderness. Exact location is only revealed at friendly land borders, route waypoints, and Citizens NPC outposts. Allies receive a "?" ping every 30 seconds instead of nothing. Ideology bonuses shift the reveal radius: Mercantile and Diplomatic lands see 2 chunks further; Isolationist see 2 fewer.</div>
+        <div class="feature-meta"><span class="k">ally-reveal-radius</span> · ideology-reveal-bonus</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1145,22 +1166,27 @@
         <div class="routes-list">
           <div class="row">
             <span class="ico">i</span>
-            <span class="l">Live caravan tracking<small>Watch every llama in transit across Squaremap, Dynmap, and BlueMap overlays.</small></span>
-            <span class="r">overlay</span>
+            <span class="l">ScappiMap — built-in tile engine<small>No external map plugin required. Async renderer with 4 zoom levels, live land/caravan/route/bandit layers, and 5-second marker refresh. Squaremap, Dynmap, and BlueMap are detected automatically and take priority when running.</small></span>
+            <span class="r">built-in</span>
           </div>
           <div class="row">
             <span class="ico">ii</span>
+            <span class="l">Live caravan tracking<small>Watch every llama in transit across the map — exact position at friendly territories, "?" ping in the wilderness when Fog of War is enabled.</small></span>
+            <span class="r">overlay</span>
+          </div>
+          <div class="row">
+            <span class="ico">iii</span>
             <span class="l">Adaptive bandit spawning<small>Risk weighted by cargo value, route history, and time of day. The first caravan is safe. The hundredth is not.</small></span>
             <span class="r">npc</span>
           </div>
           <div class="row">
-            <span class="ico">iii</span>
+            <span class="ico">iv</span>
             <span class="l">Per-land transit tax<small>Towns set their own tariff curves. Players can route around — at a cost in distance and risk.</small></span>
             <span class="r">tax.yml</span>
           </div>
           <div class="row">
-            <span class="ico">iv</span>
-            <span class="l">Insurance & escort markets<small>Underwrite other players' dispatches. Take a premium. Pay out on losses. A real second-order economy.</small></span>
+            <span class="ico">v</span>
+            <span class="l">Insurance &amp; escort markets<small>Underwrite other players' dispatches. Take a premium. Pay out on losses. A real second-order economy.</small></span>
             <span class="r">market</span>
           </div>
         </div>
@@ -1272,6 +1298,8 @@
         <p class="lede">Most "trade plugins" on the marketplace are wrappers around <code class="inl">setBlock</code> and a price config. ScappiTrade ships an entire economic stack.</p>
         <p>A <strong>real price engine</strong> — per-land supply maps, source drain on dispatch, destination replenishment on arrival, hourly recovery toward baseline.</p>
         <p>A <strong>real stock exchange</strong> — three index types <em>plus</em> four company types with crash percentages scaled by how far the caravan got before dying. OHLC history persisted to disk.</p>
+        <p>A <strong>real map engine</strong> — ScappiMap renders the world in async tile threads (PNG or WebP), serves live land and caravan overlays, and falls back gracefully when Squaremap/Dynmap/BlueMap are present. Fog of War hides caravan positions in the wilderness until they enter a friendly territory.</p>
+        <p>A <strong>real protection system</strong> — ScappiGuard gives lands eight configurable flags (PvP, entry, build, containers, explosion, fire, mob-spawning) enforced at region level with per-owner granularity.</p>
         <p>A <strong>real dashboard</strong> — 4,806 lines of embedded HTTP server with a sessioned admin panel, route CRUD with on-map waypoint placement, and a tile-proxied Leaflet map that works on any port.</p>
         <div class="why-sig">
           <div>
@@ -1294,6 +1322,8 @@
         <div class="why-paying-row"><span class="l">PAPI placeholders</span><span class="r">32</span></div>
         <div class="why-paying-row"><span class="l">Soft-dep integrations</span><span class="r">12</span></div>
         <div class="why-paying-row"><span class="l">Item-market entries</span><span class="r">37</span></div>
+        <div class="why-paying-row"><span class="l">ScappiMap zoom levels</span><span class="r">4</span></div>
+        <div class="why-paying-row"><span class="l">ScappiGuard flags</span><span class="r">8</span></div>
       </div>
     </div>
 
@@ -1324,6 +1354,10 @@
           <li>Diplomacy, embargoes, three-tier guards</li>
           <li>48-endpoint web dashboard with Leaflet map</li>
           <li>PAPI, Vault, Lands &amp; Towny integration</li>
+          <li>ScappiMap built-in tile renderer &amp; layers</li>
+          <li>ScappiGuard region protection (8 flags)</li>
+          <li>Fog of War caravan visibility system</li>
+          <li>ScappiLands &amp; Nations territory engine</li>
         </ul>
       </div>
       <div class="rm-cell current reveal">
@@ -1498,9 +1532,9 @@
         <div class="price-tag">Full server license</div>
         <h3>ScappiTrade <em style="font-style:italic;color:var(--gold-bright);">v1.0.0</em></h3>
         <ul class="price-features">
-          <li>All nine systems — caravan loop, exchange, companies, dispatch contracts, embargo, guards, dashboard.</li>
+          <li>All twelve systems — caravan loop, exchange, companies, dispatch contracts, embargo, guards, dashboard, ScappiMap, ScappiGuard, Fog of War, Lands &amp; Nations.</li>
           <li>Lifetime updates including the 2.x line — no upgrade pricing.</li>
-          <li>Customizable</li>
+          <li>Fully configurable — 550+ config keys, hot-reload without restart.</li>
           <li>SQLite by default — MySQL/Postgres adapters bundled, no extra license.</li>
           <li>Source available for self-hosted servers paying the license.</li>
         </ul>
@@ -1556,6 +1590,7 @@
         <h5>Product</h5>
         <a href="#loop">The caravan loop</a>
         <a href="#features">Systems</a>
+        <a href="#scappimap">ScappiMap</a>
         <a href="#market">Exchange</a>
         <a href="#pricing">Pricing</a>
       </div>
