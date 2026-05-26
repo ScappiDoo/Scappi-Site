@@ -756,6 +756,18 @@
     .hero-grid { gap: 36px; }
     .receipt { padding: 24px; }
   }
+
+  /* built-in systems grid responsive */
+  .builtin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  @media (max-width: 860px) { .builtin-grid { grid-template-columns: 1fr; } }
+  .builtin-cell { background: var(--bg); padding: 40px 32px; display: flex; flex-direction: column; gap: 14px; }
+  .builtin-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+  .builtin-name { font-family: var(--serif); font-size: 32px; color: var(--gold-bright); line-height: 1.1; }
+  .builtin-desc { font-size: 14px; color: var(--ink-dim); line-height: 1.65; }
+  .builtin-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .builtin-list li { font-size: 13px; color: var(--ink-dim); display: flex; gap: 10px; align-items: baseline; }
+  .builtin-list li::before { content: "✦"; color: var(--gold); flex-shrink: 0; }
+  .builtin-foot { margin-top: auto; padding-top: 16px; border-top: 1px dashed var(--rule); font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
 </style>
 </head>
 <body>
@@ -1115,6 +1127,65 @@
   </div>
 </section>
 
+<!-- ============== BUILT-IN SYSTEMS ============== -->
+<section style="padding: 80px 0; border-top: 1px solid var(--rule); background: var(--bg-2);">
+  <div class="container">
+    <div class="section-head" style="margin-bottom: 48px;">
+      <div>
+        <div class="eyebrow"><span class="marker">§</span> Batteries included <span class="dot">·</span> No extra plugins needed</div>
+        <h2 style="margin-top:12px;">Three engines. <em style="color:var(--gold-bright);">Shipped in the JAR.</em></h2>
+      </div>
+      <p class="desc">Most trade plugins bolt onto WorldGuard, Dynmap, and Lands. ScappiTrade ships all three equivalents built-in — drop the JAR and you're running a full economy, map, protection, and territory stack out of the box.</p>
+    </div>
+
+    <div class="builtin-grid">
+
+      <!-- ScappiMap -->
+      <div class="builtin-cell">
+        <div class="builtin-tag">Built-in · Replaces Squaremap / Dynmap / BlueMap</div>
+        <div class="builtin-name">ScappiMap</div>
+        <p class="builtin-desc">Async tile renderer built directly into the plugin. Renders the world into PNG or WebP tiles across four zoom levels, serves them through the dashboard web server, and keeps a live markers overlay for caravans, lands, routes, and bandit camps refreshing every 5 seconds.</p>
+        <ul class="builtin-list">
+          <li>1–4 async render threads (configurable)</li>
+          <li>Zoom levels 0, 1, 2, 3 — PNG or WebP output</li>
+          <li>Land outlines, caravan dots, route paths, bandit camps</li>
+          <li>Auto-detects Squaremap / Dynmap / BlueMap — yields priority if running</li>
+        </ul>
+        <div class="builtin-foot"><code class="inl">/scappimap fullrender</code></div>
+      </div>
+
+      <!-- ScappiGuard -->
+      <div class="builtin-cell">
+        <div class="builtin-tag">Built-in · Replaces WorldGuard for land protection</div>
+        <div class="builtin-name">ScappiGuard</div>
+        <p class="builtin-desc">Region protection built into the territory engine. Select a cuboid with a Blaze Rod wand, define a named region, and set eight flags per region. Multiple owners per region. Deeply integrated with ScappiLands so land claims and custom regions respect the same permission hierarchy.</p>
+        <ul class="builtin-list">
+          <li>pvp · block-break · block-place · mob-spawning</li>
+          <li>explosion · entry · chest-access · fire-spread</li>
+          <li>Each flag: ALLOW / DENY / DEFAULT per region</li>
+          <li>Blaze Rod wand — left-click corner 1, right-click corner 2</li>
+        </ul>
+        <div class="builtin-foot"><code class="inl">/sg define · /sg flag · /sg wand</code></div>
+      </div>
+
+      <!-- ScappiLands -->
+      <div class="builtin-cell">
+        <div class="builtin-tag">Built-in · Replaces Lands / Towny</div>
+        <div class="builtin-name">ScappiLands</div>
+        <p class="builtin-desc">Full territory and governance engine — chunk claims, citizen roles, nation formation, war and sieges, elections, and an ideology system — all wired directly into the caravan economy. Territory decisions have real market consequences: transit taxes, diplomatic embargoes, and supply disruption.</p>
+        <ul class="builtin-list">
+          <li>Chunk claims, autoclaim, citizen roles (Owner → Citizen)</li>
+          <li>Nations: diplomacy, sieges, elections, land treasury</li>
+          <li>5 ideologies: Militarist · Mercantile · Agrarian · Diplomatic · Isolationist</li>
+          <li>External Lands / Towny / GriefPrevention auto-detected if running</li>
+        </ul>
+        <div class="builtin-foot"><code class="inl">/land · /nation · /sg · /scappimap</code></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- ============== ROUTES ============== -->
 <section class="routes" id="routes">
   <div class="container">
@@ -1403,7 +1474,7 @@
       <div class="reveal">
         <div class="eyebrow"><span class="marker">§ 09</span> <span class="dot">·</span> Things people ask</div>
         <h2>Plainly answered.</h2>
-        <p class="desc" style="margin-top:24px;">Six questions every server admin sends before clicking buy. Honest answers below.</p>
+        <p class="desc" style="margin-top:24px;">Nine questions every server admin sends before clicking buy. Honest answers below.</p>
       </div>
 
       <div class="faq-list reveal">
@@ -1424,7 +1495,8 @@
             <span class="toggle">+</span>
           </div>
           <div class="faq-a"><div class="faq-a-inner">
-            <p>You can still run the entire caravan loop and exchange. Without a land plugin, tax windows fall back to per-world brackets defined in <code class="inl">tax.yml</code>. Lands/Towny is recommended (the diplomacy layer needs jurisdictions to be interesting) but not required.</p>
+            <p>ScappiTrade ships <strong>ScappiLands</strong> as its own built-in territory engine — you don't need Lands or Towny at all. ScappiLands handles chunk claims, citizen roles, nation governance, diplomacy, sieges, elections, and the ideology system out of the box.</p>
+            <p>If you already run Lands or Towny, ScappiTrade soft-detects them and uses their territory data instead — the diplomacy and transit-tax layers wire up automatically. GriefPrevention is also supported as a fallback. The priority order is: <code class="inl">Lands → Towny → GriefPrevention → ScappiLands</code>.</p>
           </div></div>
         </div>
         <div class="faq-item">
@@ -1460,6 +1532,39 @@
         <div class="faq-item">
           <div class="faq-q">
             <span class="num">vi.</span>
+            <span class="qt">Do I need a separate map plugin for the live map?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>No. <strong>ScappiMap</strong> is the built-in tile renderer — it ships inside the JAR. It renders your world asynchronously (1–4 configurable threads), generates tiles at four zoom levels, and serves them directly through the analytics web server. Live layers for lands, caravans, trade routes, and bandit camps update every 5 seconds.</p>
+            <p>If you already run Squaremap, Dynmap, or BlueMap, ScappiTrade detects them automatically and uses their tiles instead — ScappiMap only activates when no external map is running. Either way, the dashboard map just works on any port without CORS gymnastics.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">vii.</span>
+            <span class="qt">Do I need WorldGuard for region protection?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>No. <strong>ScappiGuard</strong> is the built-in region protection system. Define a region with the Blaze Rod wand, then set any of eight flags — PvP, block-break, block-place, mob-spawning, explosion, entry, chest-access, fire-spread — each to ALLOW, DENY, or DEFAULT per region. Multiple owners are supported per region.</p>
+            <p>WorldGuard is still supported as a soft-dependency (three custom caravan flags are registered when it's present — <code class="inl">caravan-safe</code>, <code class="inl">caravan-danger</code>, <code class="inl">caravan-block</code>). But for basic land protection ScappiGuard covers everything without an extra plugin.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">viii.</span>
+            <span class="qt">What is Fog of War and should I enable it?</span>
+            <span class="toggle">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Fog of War hides caravan positions on the map when they are travelling through wilderness. Exact position is only revealed when a caravan enters a friendly land's territory, passes a route waypoint, or moves near a Citizens NPC Trader outpost. Allies outside those zones see a "?" ping every 30 seconds instead of nothing.</p>
+            <p>It's disabled by default (<code class="inl">fog-of-war.enabled: false</code>) — the vanilla experience shows all caravans to everyone. Enable it on servers where intelligence about rival trade routes should be earned rather than free. Ideology bonuses apply: Mercantile and Diplomatic nations sense caravans 2 chunks further; Isolationist nations 2 fewer.</p>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span class="num">ix.</span>
             <span class="qt">What's the license really say?</span>
             <span class="toggle">+</span>
           </div>
