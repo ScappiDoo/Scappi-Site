@@ -1045,8 +1045,8 @@
     <div class="section-head">
       <div class="eyebrow"><span class="marker">§ 03</span> <span class="dot">·</span> Systems</div>
       <div>
-        <h2>Twelve systems. <em style="font-style:italic;color:var(--gold-bright);">One economy.</em></h2>
-        <p class="desc">Each module is opt-in. Run only the caravan loop, or wire the whole engine: four-type exchange, dividends, three-tier guards, embargoes, contracts, built-in map renderer, region protection, and Fog of War.</p>
+        <h2>Fifteen systems. <em style="font-style:italic;color:var(--gold-bright);">One economy.</em></h2>
+        <p class="desc">Each module is opt-in. Run only the caravan loop, or wire the whole engine: four-type exchange, dividends, three-tier guards with AI pathfinding, embargoes, contracts, chunk node production, auction house, NPC trader network, built-in map renderer, region protection, and Fog of War.</p>
       </div>
     </div>
 
@@ -1078,8 +1078,8 @@
       <div class="feature reveal">
         <div class="feature-no">/ 05</div>
         <div class="feature-title">Three-tier guard escorts</div>
-        <div class="feature-body">Vindicator NPCs at Tier I / II / III against PvP and bandit raids. Bandit camps spawn fully-configurable ambushes — Trade Crate drops and vault-paid bounties.</div>
-        <div class="feature-meta"><span class="k">ambush-crate-pct</span> = 0.40</div>
+        <div class="feature-body">Vindicator NPCs at Tier I / II / III against PvP and bandit raids. Bandit camps spawn fully-configurable squads — Vanilla, MythicMobs, or Citizens sources — that actively pathfind and chase caravans within a configurable radius. Trade Crate drops and vault-paid per-kill bounties. Static camps and dynamic conflict-zone raids (war &amp; embargo territories) both supported.</div>
+        <div class="feature-meta"><span class="k">caravan-chase-radius</span> · MythicMobs · Citizens</div>
       </div>
       <div class="feature reveal">
         <div class="feature-no">/ 06</div>
@@ -1122,6 +1122,24 @@
         <div class="feature-title">Fog of War</div>
         <div class="feature-body">Caravan positions are hidden in the wilderness. Exact location is only revealed at friendly land borders, route waypoints, and Citizens NPC outposts. Allies receive a "?" ping every 30 seconds instead of nothing. Ideology bonuses shift the reveal radius: Mercantile and Diplomatic lands see 2 chunks further; Isolationist see 2 fewer.</div>
         <div class="feature-meta"><span class="k">ally-reveal-radius</span> · ideology-reveal-bonus</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 13</div>
+        <div class="feature-title">Chunk node production</div>
+        <div class="feature-body">Every claimed chunk receives a deterministic production node — Mine, Forest, Farm, Coastal, Ocean, Dungeon, or Nether — based on its biome. Stock accumulates passively every minute; a system-owned collector llama harvests on a configurable schedule (max 6 runs per day) and deposits goods into the land's delivery pool. Owners collect via the Lands GUI, no manual farming required.</div>
+        <div class="feature-meta"><span class="k">NodeManager</span> · 7 biome types · /land nodes</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 14</div>
+        <div class="feature-title">Auction house</div>
+        <div class="feature-body">Real-time auction system where players list physical items — NBT, enchants, and CMD preserved — with a starting bid and optional buyout price. Concurrent bidding, automatic expiry timers, and outbid notifications run entirely on the Vault economy. A secondary market layer beneath the exchange for non-route goods.</div>
+        <div class="feature-meta"><span class="k">/auction</span> · live bidding · Vault-settled</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 15</div>
+        <div class="feature-title">NPC Trader network</div>
+        <div class="feature-body">Citizens-powered trader NPCs operate as autonomous merchants — dispatching caravans on a configurable interval, following admin-set routes, and maintaining their own trade persona. Sentinel integration adds NPC guard escorts. Configure routes, timing, and cargo via <code class="inl">/caravan admin npc</code>.</div>
+        <div class="feature-meta"><span class="k">Citizens</span> · <span class="k">Sentinel</span> · admin-scripted routes</div>
       </div>
     </div>
   </div>
@@ -1172,14 +1190,16 @@
       <div class="builtin-cell">
         <div class="builtin-tag">Built-in · Replaces Lands / Towny</div>
         <div class="builtin-name">ScappiLands</div>
-        <p class="builtin-desc">Full territory and governance engine — chunk claims, citizen roles, nation formation, war and sieges, elections, and an ideology system — all wired directly into the caravan economy. Territory decisions have real market consequences: transit taxes, diplomatic embargoes, and supply disruption.</p>
+        <p class="builtin-desc">Full territory and governance engine — chunk claims, citizen roles, nation formation, war and sieges, elections, ideology system, player-to-player land sales, and chunk node production — all wired directly into the caravan economy. Territory decisions have real market consequences: transit taxes, diplomatic embargoes, and supply disruption.</p>
         <ul class="builtin-list">
-          <li>Chunk claims, autoclaim, citizen roles (Owner → Citizen)</li>
-          <li>Nations: diplomacy, sieges, elections, land treasury</li>
+          <li>Chunk claims, autoclaim, citizen roles (Owner → Minister → Citizen)</li>
+          <li>Nations: diplomacy, sieges, elections, ideology, land &amp; nation treasury</li>
           <li>5 ideologies: Militarist · Mercantile · Agrarian · Diplomatic · Isolationist</li>
+          <li>Chunk node production: passive resource generation harvested by collector llamas</li>
+          <li>Player land sales (<code class="inl">/land sell · /land buy</code>), map border colours, sub-plot flags</li>
           <li>External Lands / Towny / GriefPrevention auto-detected if running</li>
         </ul>
-        <div class="builtin-foot"><code class="inl">/land · /nation · /sg · /scappimap</code></div>
+        <div class="builtin-foot"><code class="inl">/land · /nation · /sg · /scappimap · /auction</code></div>
       </div>
 
     </div>
@@ -1346,9 +1366,9 @@
   <div class="container">
     <div class="eyebrow"><span class="marker">§ 06</span> <span class="dot">·</span> Under the hood — every number real</div>
     <div class="spec-grid">
-      <div class="spec reveal"><div class="n countup" data-to="33824" data-prefix="~" data-suffix="">~33,824</div><div class="l">Java LOC</div></div>
-      <div class="spec reveal"><div class="n countup" data-to="133">133</div><div class="l">Java files</div></div>
-      <div class="spec reveal"><div class="n countup" data-to="47">47</div><div class="l">DB tables</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="38000" data-prefix="~" data-suffix="">~38,000</div><div class="l">Java LOC</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="148">148</div><div class="l">Java files</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="49">49</div><div class="l">DB tables</div></div>
       <div class="spec reveal"><div class="n countup" data-to="48">48</div><div class="l">REST endpoints</div></div>
       <div class="spec reveal"><div class="n countup" data-to="37">37</div><div class="l">Item types</div></div>
       <div class="spec reveal"><div class="n countup" data-to="32">32</div><div class="l">PAPI placeholders</div></div>
@@ -1370,6 +1390,7 @@
         <p>A <strong>real price engine</strong> — per-land supply maps, source drain on dispatch, destination replenishment on arrival, hourly recovery toward baseline.</p>
         <p>A <strong>real stock exchange</strong> — three index types <em>plus</em> four company types with crash percentages scaled by how far the caravan got before dying. OHLC history persisted to disk.</p>
         <p>A <strong>real map engine</strong> — ScappiMap renders the world in async tile threads (PNG or WebP), serves live land and caravan overlays, and falls back gracefully when Squaremap/Dynmap/BlueMap are present. Fog of War hides caravan positions in the wilderness until they enter a friendly territory.</p>
+        <p>A <strong>real passive economy</strong> — ScappiLands assigns every claimed chunk a deterministic production node (Mine, Forest, Farm, Coastal, Ocean, Dungeon, Nether). Stock accumulates each minute; a collector llama auto-harvests on a configurable schedule and drops goods into the land's delivery pool. No farming plugins, no external dependencies.</p>
         <p>A <strong>real protection system</strong> — ScappiGuard gives lands eight configurable flags (PvP, entry, build, containers, explosion, fire, mob-spawning) enforced at region level with per-owner granularity.</p>
         <p>A <strong>real dashboard</strong> — 4,806 lines of embedded HTTP server with a sessioned admin panel, route CRUD with on-map waypoint placement, and a tile-proxied Leaflet map that works on any port.</p>
         <div class="why-sig">
@@ -1385,14 +1406,15 @@
           <span class="t">What you are paying for</span>
           <span class="t" style="color:var(--ink-faint)">v1.0.0</span>
         </div>
-        <div class="why-paying-row"><span class="l">Java source files</span><span class="r">133</span></div>
-        <div class="why-paying-row"><span class="l">Lines of plugin code</span><span class="r">~33,824</span></div>
-        <div class="why-paying-row"><span class="l">Database tables (schema v15)</span><span class="r">47</span></div>
+        <div class="why-paying-row"><span class="l">Java source files</span><span class="r">148</span></div>
+        <div class="why-paying-row"><span class="l">Lines of plugin code</span><span class="r">~38,000</span></div>
+        <div class="why-paying-row"><span class="l">Database tables</span><span class="r">49</span></div>
         <div class="why-paying-row"><span class="l">REST endpoints (admin + player)</span><span class="r">48</span></div>
-        <div class="why-paying-row"><span class="l">Brigadier subcommands</span><span class="r">63</span></div>
+        <div class="why-paying-row"><span class="l">Brigadier subcommands</span><span class="r">70+</span></div>
         <div class="why-paying-row"><span class="l">PAPI placeholders</span><span class="r">32</span></div>
         <div class="why-paying-row"><span class="l">Soft-dep integrations</span><span class="r">12</span></div>
         <div class="why-paying-row"><span class="l">Item-market entries</span><span class="r">37</span></div>
+        <div class="why-paying-row"><span class="l">Node biome types</span><span class="r">7</span></div>
         <div class="why-paying-row"><span class="l">ScappiMap zoom levels</span><span class="r">4</span></div>
         <div class="why-paying-row"><span class="l">ScappiGuard flags</span><span class="r">8</span></div>
       </div>
@@ -1422,13 +1444,16 @@
         <div class="rm-when">21 · V · 2026</div>
         <ul class="rm-list">
           <li>Caravan loop, price engine, four-type exchange</li>
-          <li>Diplomacy, embargoes, three-tier guards</li>
+          <li>Diplomacy, embargoes, three-tier guards + AI pathfinding</li>
           <li>48-endpoint web dashboard with Leaflet map</li>
           <li>PAPI, Vault, Lands &amp; Towny integration</li>
           <li>ScappiMap built-in tile renderer &amp; layers</li>
           <li>ScappiGuard region protection (8 flags)</li>
           <li>Fog of War caravan visibility system</li>
           <li>ScappiLands &amp; Nations territory engine</li>
+          <li>Chunk node production system (7 types)</li>
+          <li>Auction house with live bidding</li>
+          <li>Citizens NPC Trader network</li>
         </ul>
       </div>
       <div class="rm-cell current reveal">
@@ -1436,10 +1461,11 @@
         <div class="rm-ver">v1.1 <em>in flight</em></div>
         <div class="rm-when">Q3 · 2026</div>
         <ul class="rm-list">
-          <li>Dispatch contracts &amp; freight bidding</li>
           <li>OHLC candle charts in the chest GUI</li>
           <li>Postgres adapter (parity with SQLite)</li>
           <li>Bandit-camp loot tables expanded</li>
+          <li>Node type overrides per-chunk in admin GUI</li>
+          <li>Auction house buy-order (bid-matching)</li>
         </ul>
       </div>
       <div class="rm-cell future reveal">
@@ -1637,7 +1663,7 @@
         <div class="price-tag">Full server license</div>
         <h3>ScappiTrade <em style="font-style:italic;color:var(--gold-bright);">v1.0.0</em></h3>
         <ul class="price-features">
-          <li>All twelve systems — caravan loop, exchange, companies, dispatch contracts, embargo, guards, dashboard, ScappiMap, ScappiGuard, Fog of War, Lands &amp; Nations.</li>
+          <li>All fifteen systems — caravan loop, price engine, four-type exchange, companies, diplomacy &amp; embargoes, guards with AI pathfinding, chunk node production, auction house, NPC trader network, 48-endpoint dashboard, ScappiMap, ScappiGuard, Fog of War, ScappiLands &amp; Nations.</li>
           <li>Lifetime updates including the 2.x line — no upgrade pricing.</li>
           <li>Fully configurable — 550+ config keys, hot-reload without restart.</li>
           <li>SQLite by default — MySQL/Postgres adapters bundled, no extra license.</li>
