@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ScappiTrade — Real cargo. Real markets. Real risk.</title>
-<meta name="description" content="A premium Paper plugin that turns Minecraft into a working trade economy. Caravans, supply-driven prices, a four-type stock exchange, diplomacy and a 48-endpoint dashboard." />
+<meta name="description" content="A premium Paper plugin that turns Minecraft into a working trade economy. Caravans, supply-driven prices, a four-type stock exchange, diplomacy and a 95-endpoint dashboard." />
 <meta property="og:title" content="ScappiTrade — A trading economy for serious servers" />
 <meta property="og:description" content="Load real items into a trader llama. Dispatch across the world. Supply, tax and bandits decide your profit." />
 <meta property="og:type" content="website" />
@@ -901,6 +901,7 @@
           <span><strong>Lands</strong> · Towny · GP</span>
           <span><strong>ScappiMap</strong> built-in</span>
           <span><strong>ScappiGuard</strong> regions</span>
+          <span><strong>Mobile PWA</strong> companion</span>
         </div>
       </div>
 
@@ -1045,8 +1046,8 @@
     <div class="section-head">
       <div class="eyebrow"><span class="marker">§ 03</span> <span class="dot">·</span> Systems</div>
       <div>
-        <h2>Fifteen systems. <em style="font-style:italic;color:var(--gold-bright);">One economy.</em></h2>
-        <p class="desc">Each module is opt-in. Run only the caravan loop, or wire the whole engine: four-type exchange, dividends, three-tier guards with AI pathfinding, embargoes, contracts, chunk node production, auction house, NPC trader network, built-in map renderer, region protection, and Fog of War.</p>
+        <h2>Eighteen systems. <em style="font-style:italic;color:var(--gold-bright);">One economy.</em></h2>
+        <p class="desc">Each module is opt-in. Run only the caravan loop, or wire the whole engine: four-type exchange, dividends, three-tier guards with AI pathfinding, embargoes, contracts, chunk node production, capture nodes, auction house, NPC trader network, built-in map renderer, region protection, Fog of War, nation wars &amp; elections, and an installable mobile companion app.</p>
       </div>
     </div>
 
@@ -1083,7 +1084,7 @@
       </div>
       <div class="feature reveal">
         <div class="feature-no">/ 06</div>
-        <div class="feature-title">48-endpoint web dashboard</div>
+        <div class="feature-title">95-endpoint web dashboard</div>
         <div class="feature-body">Embedded HTTP server on <code class="inl">0.0.0.0:25578</code> with a live Leaflet map proxied through the plugin — works on any port without CORS gymnastics.</div>
         <div class="feature-meta"><span class="k">6 admin tabs</span> · session-guarded</div>
       </div>
@@ -1101,9 +1102,9 @@
       </div>
       <div class="feature reveal">
         <div class="feature-no">/ 09</div>
-        <div class="feature-title">32 PAPI placeholders</div>
+        <div class="feature-title">37 PAPI placeholders</div>
         <div class="feature-body">Drop <code class="inl">%scappi_*%</code> into any scoreboard, chat or HUD plugin. Prices, holdings, P/L, caravan ETA, route risk — all live.</div>
-        <div class="feature-meta"><span class="k">placeholders.yml</span> · 32 keys</div>
+        <div class="feature-meta"><span class="k">placeholders.yml</span> · 37 keys</div>
       </div>
       <div class="feature reveal" id="scappimap">
         <div class="feature-no">/ 10</div>
@@ -1140,6 +1141,24 @@
         <div class="feature-title">NPC Trader network</div>
         <div class="feature-body">Citizens-powered trader NPCs operate as autonomous merchants — dispatching caravans on a configurable interval, following admin-set routes, and maintaining their own trade persona. Sentinel integration adds NPC guard escorts. Configure routes, timing, and cargo via <code class="inl">/caravan admin npc</code>.</div>
         <div class="feature-meta"><span class="k">Citizens</span> · <span class="k">Sentinel</span> · admin-scripted routes</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 16</div>
+        <div class="feature-title">Mobile companion app</div>
+        <div class="feature-body">A full progressive web app served straight from the plugin. Six tabs — home dashboard, live caravan tracker, market prices, diplomacy proposals, and a full-screen map. A service worker and manifest let it install to a phone's home screen; sign in with a 6-digit code generated in-game. No app store, no separate hosting.</div>
+        <div class="feature-meta"><span class="k">/app</span> · installable PWA · service worker</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 17</div>
+        <div class="feature-title">Capture nodes</div>
+        <div class="feature-body">Admin-placed capturable resource nodes that players contest on foot. Only the top contributors per faction count, presence warms up over 30 seconds, kills grant bonus points, and a contested node freezes until one side decisively pulls ahead. Captured nodes feed goods into the owning land's delivery pool.</div>
+        <div class="feature-meta"><span class="k">CaptureNodeManager</span> · contested scoring</div>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-no">/ 18</div>
+        <div class="feature-title">Wars, sieges &amp; elections</div>
+        <div class="feature-body">Nations declare war, sue for peace, and lay siege to enemy lands; players raid enemy territory with raid banners. Citizens elect their leaders — call an election, register, campaign, vote, or petition. Governance has teeth: war and embargo zones spawn conflict raids on the caravans that pass through them.</div>
+        <div class="feature-meta"><span class="k">/nation war</span> · siege · <span class="k">/nation election</span></div>
       </div>
     </div>
   </div>
@@ -1366,12 +1385,12 @@
   <div class="container">
     <div class="eyebrow"><span class="marker">§ 06</span> <span class="dot">·</span> Under the hood — every number real</div>
     <div class="spec-grid">
-      <div class="spec reveal"><div class="n countup" data-to="38000" data-prefix="~" data-suffix="">~38,000</div><div class="l">Java LOC</div></div>
-      <div class="spec reveal"><div class="n countup" data-to="148">148</div><div class="l">Java files</div></div>
-      <div class="spec reveal"><div class="n countup" data-to="49">49</div><div class="l">DB tables</div></div>
-      <div class="spec reveal"><div class="n countup" data-to="48">48</div><div class="l">REST endpoints</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="59000" data-prefix="~" data-suffix="">~59,000</div><div class="l">Java LOC</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="223">223</div><div class="l">Java files</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="64">64</div><div class="l">DB tables</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="95">95</div><div class="l">REST endpoints</div></div>
       <div class="spec reveal"><div class="n countup" data-to="37">37</div><div class="l">Item types</div></div>
-      <div class="spec reveal"><div class="n countup" data-to="32">32</div><div class="l">PAPI placeholders</div></div>
+      <div class="spec reveal"><div class="n countup" data-to="37">37</div><div class="l">PAPI placeholders</div></div>
     </div>
     <div class="footnote">
       <sup>¹</sup> Every number above is real. They are not feature checkboxes — they are the count of physical files, tables, and endpoints in the shipped JAR.
@@ -1392,7 +1411,7 @@
         <p>A <strong>real map engine</strong> — ScappiMap renders the world in async tile threads (PNG or WebP), serves live land and caravan overlays, and falls back gracefully when Squaremap/Dynmap/BlueMap are present. Fog of War hides caravan positions in the wilderness until they enter a friendly territory.</p>
         <p>A <strong>real passive economy</strong> — ScappiLands assigns every claimed chunk a deterministic production node (Mine, Forest, Farm, Coastal, Ocean, Dungeon, Nether). Stock accumulates each minute; a collector llama auto-harvests on a configurable schedule and drops goods into the land's delivery pool. No farming plugins, no external dependencies.</p>
         <p>A <strong>real protection system</strong> — ScappiGuard gives lands eight configurable flags (PvP, entry, build, containers, explosion, fire, mob-spawning) enforced at region level with per-owner granularity.</p>
-        <p>A <strong>real dashboard</strong> — 4,806 lines of embedded HTTP server with a sessioned admin panel, route CRUD with on-map waypoint placement, and a tile-proxied Leaflet map that works on any port.</p>
+        <p>A <strong>real dashboard</strong> — ~9,500 lines across four embedded HTTP servers (dashboard, PWA, map, lands-admin) with a sessioned admin panel, route CRUD with on-map waypoint placement, and a tile-proxied Leaflet map that works on any port.</p>
         <div class="why-sig">
           <div>
             <div class="sg">— ScappiDoo</div>
@@ -1406,13 +1425,13 @@
           <span class="t">What you are paying for</span>
           <span class="t" style="color:var(--ink-faint)">v1.0.0</span>
         </div>
-        <div class="why-paying-row"><span class="l">Java source files</span><span class="r">148</span></div>
-        <div class="why-paying-row"><span class="l">Lines of plugin code</span><span class="r">~38,000</span></div>
-        <div class="why-paying-row"><span class="l">Database tables</span><span class="r">49</span></div>
-        <div class="why-paying-row"><span class="l">REST endpoints (admin + player)</span><span class="r">48</span></div>
-        <div class="why-paying-row"><span class="l">Brigadier subcommands</span><span class="r">70+</span></div>
-        <div class="why-paying-row"><span class="l">PAPI placeholders</span><span class="r">32</span></div>
-        <div class="why-paying-row"><span class="l">Soft-dep integrations</span><span class="r">12</span></div>
+        <div class="why-paying-row"><span class="l">Java source files</span><span class="r">223</span></div>
+        <div class="why-paying-row"><span class="l">Lines of plugin code</span><span class="r">~59,000</span></div>
+        <div class="why-paying-row"><span class="l">Database tables</span><span class="r">64</span></div>
+        <div class="why-paying-row"><span class="l">REST endpoints (admin + player)</span><span class="r">95</span></div>
+        <div class="why-paying-row"><span class="l">Brigadier subcommands</span><span class="r">120+</span></div>
+        <div class="why-paying-row"><span class="l">PAPI placeholders</span><span class="r">37</span></div>
+        <div class="why-paying-row"><span class="l">Soft-dep integrations</span><span class="r">13</span></div>
         <div class="why-paying-row"><span class="l">Item-market entries</span><span class="r">37</span></div>
         <div class="why-paying-row"><span class="l">Node biome types</span><span class="r">7</span></div>
         <div class="why-paying-row"><span class="l">ScappiMap zoom levels</span><span class="r">4</span></div>
@@ -1445,15 +1464,16 @@
         <ul class="rm-list">
           <li>Caravan loop, price engine, four-type exchange</li>
           <li>Diplomacy, embargoes, three-tier guards + AI pathfinding</li>
-          <li>48-endpoint web dashboard with Leaflet map</li>
+          <li>95-endpoint web dashboard with Leaflet map</li>
           <li>PAPI, Vault, Lands &amp; Towny integration</li>
           <li>ScappiMap built-in tile renderer &amp; layers</li>
           <li>ScappiGuard region protection (8 flags)</li>
           <li>Fog of War caravan visibility system</li>
-          <li>ScappiLands &amp; Nations territory engine</li>
-          <li>Chunk node production system (7 types)</li>
+          <li>ScappiLands &amp; Nations — wars, sieges, elections</li>
+          <li>Chunk node production (7 types) &amp; capture nodes</li>
           <li>Auction house with live bidding</li>
           <li>Citizens NPC Trader network</li>
+          <li>Installable mobile companion app (PWA)</li>
         </ul>
       </div>
       <div class="rm-cell current reveal">
@@ -1663,7 +1683,7 @@
         <div class="price-tag">Full server license</div>
         <h3>ScappiTrade <em style="font-style:italic;color:var(--gold-bright);">v1.0.0</em></h3>
         <ul class="price-features">
-          <li>All fifteen systems — caravan loop, price engine, four-type exchange, companies, diplomacy &amp; embargoes, guards with AI pathfinding, chunk node production, auction house, NPC trader network, 48-endpoint dashboard, ScappiMap, ScappiGuard, Fog of War, ScappiLands &amp; Nations.</li>
+          <li>All eighteen systems — caravan loop, price engine, four-type exchange, companies, diplomacy &amp; embargoes, guards with AI pathfinding, chunk node production, capture nodes, auction house, NPC trader network, 95-endpoint dashboard, mobile companion app, ScappiMap, ScappiGuard, Fog of War, ScappiLands &amp; Nations with wars &amp; elections.</li>
           <li>Lifetime updates including the 2.x line — no upgrade pricing.</li>
           <li>Fully configurable — 550+ config keys, hot-reload without restart.</li>
           <li>SQLite by default — MySQL/Postgres adapters bundled, no extra license.</li>
