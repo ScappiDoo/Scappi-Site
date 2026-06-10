@@ -11,7 +11,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'><path d='M14 1.5L25.5 8v12L14 26.5 2.5 20V8L14 1.5z' fill='%230a0a12' stroke='%23d4a849' stroke-width='1.4'/><circle cx='14' cy='14' r='2' fill='%23f5d27a'/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
   :root {
     --bg: #0a0a12;
@@ -30,6 +30,7 @@
     --serif: "Cormorant Garamond", "Times New Roman", serif;
     --sans: "Inter", system-ui, sans-serif;
     --mono: "JetBrains Mono", ui-monospace, monospace;
+    --roman: "Cinzel", "Trajan Pro", "Times New Roman", serif;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
@@ -434,7 +435,7 @@
     display: grid; grid-template-columns: 48px 1fr 28px; gap: 16px; align-items: center;
     padding: 22px 4px; cursor: pointer; user-select: none;
   }
-  .faq-q .num { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--gold-deep); }
+  .faq-q .num { font-family: var(--roman); font-style: normal; font-weight: 600; font-size: 17px; letter-spacing: 0.04em; color: var(--gold-deep); }
   .faq-q .qt { font-family: var(--serif); font-size: 22px; color: var(--ink); line-height: 1.3; }
   .faq-q .toggle { font-family: var(--serif); font-style: italic; font-size: 28px; color: var(--gold); justify-self: end; transition: transform .25s ease; }
   .faq-item.open .faq-q .toggle { transform: rotate(45deg); }
@@ -516,7 +517,8 @@
     .step { border-bottom: 1px solid var(--rule); }
   }
   .step-num {
-    font-family: var(--serif); font-style: italic; font-size: 80px; line-height: 1; color: var(--gold-deep);
+    font-family: var(--roman); font-style: normal; font-weight: 600; letter-spacing: 0.04em;
+    font-size: 64px; line-height: 1; color: var(--gold-deep);
     margin-bottom: 16px;
   }
   .step-title { font-family: var(--serif); font-size: 26px; color: var(--ink); margin-bottom: 12px; line-height: 1.15; }
@@ -619,7 +621,7 @@
     display: grid; grid-template-columns: 22px 1fr auto; gap: 14px;
     padding: 14px 0; border-bottom: 1px dashed var(--rule); align-items: center;
   }
-  .routes-list .row .ico { color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 20px; }
+  .routes-list .row .ico { color: var(--gold); font-family: var(--roman); font-style: normal; font-weight: 600; font-size: 15px; letter-spacing: 0.04em; }
   .routes-list .row .l { font-size: 14px; color: var(--ink); }
   .routes-list .row .l small { display: block; color: var(--ink-faint); font-size: 12px; margin-top: 4px; }
   .routes-list .row .r { font-family: var(--mono); font-size: 11px; color: var(--gold); letter-spacing: 0.1em; }
@@ -1007,31 +1009,31 @@
 
     <div class="loop-grid loop-grid-5">
       <div class="step reveal">
-        <div class="step-num">i.</div>
+        <div class="step-num">I.</div>
         <div class="step-title">Open</div>
         <div class="step-body"><code class="inl">/caravan trade</code> opens a 54-slot dispatch GUI. Slot 49 shows the live destination value of what you've loaded so far.</div>
         <div class="step-tag">/caravan trade</div>
       </div>
       <div class="step reveal">
-        <div class="step-num">ii.</div>
+        <div class="step-num">II.</div>
         <div class="step-title">Load</div>
         <div class="step-body">Slots 0–44 hold real <code class="inl">ItemStack</code>s — NBT, durability, enchants and CMD preserved. Items serialise to Base64; the llama then spawns.</div>
         <div class="step-tag">Trader llama · 45 cargo slots</div>
       </div>
       <div class="step reveal">
-        <div class="step-num">iii.</div>
+        <div class="step-num">III.</div>
         <div class="step-title">Dispatch</div>
         <div class="step-body">Min cargo enforced (<code class="inl">min-cargo-value</code>). Source land's supply drains 10% of shipped quantity. Markers post to every enabled MapHook.</div>
         <div class="step-tag">Squaremap · Dynmap · BlueMap</div>
       </div>
       <div class="step reveal">
-        <div class="step-num">iv.</div>
+        <div class="step-num">IV.</div>
         <div class="step-title">Travel</div>
         <div class="step-body">Waypoint pathfinding, 20-block step cap, 4-block arrival check. Anti-teleport at 50 blocks/tick. Wilderness flag is one-way — once vulnerable, stays vulnerable.</div>
         <div class="step-tag">teleport-threshold = 50</div>
       </div>
       <div class="step reveal">
-        <div class="step-num">v.</div>
+        <div class="step-num">V.</div>
         <div class="step-title">Arrive</div>
         <div class="step-body">Destination land's supply replenishes. Net payout = base − tax − maintenance. Stocks tick. Dividends accrue. The ledger writes a line.</div>
         <div class="step-tag">net = base − tax − maint.</div>
@@ -1275,27 +1277,27 @@
 
         <div class="routes-list">
           <div class="row">
-            <span class="ico">i</span>
+            <span class="ico">I</span>
             <span class="l">ScappiMap — built-in tile engine<small>No external map plugin required. Async renderer with 4 zoom levels, live land/caravan/route/bandit layers, and 5-second marker refresh. Squaremap, Dynmap, and BlueMap are detected automatically and take priority when running.</small></span>
             <span class="r">built-in</span>
           </div>
           <div class="row">
-            <span class="ico">ii</span>
+            <span class="ico">II</span>
             <span class="l">Live caravan tracking<small>Watch every llama in transit across the map — exact position at friendly territories, "?" ping in the wilderness when Fog of War is enabled.</small></span>
             <span class="r">overlay</span>
           </div>
           <div class="row">
-            <span class="ico">iii</span>
+            <span class="ico">III</span>
             <span class="l">Adaptive bandit spawning<small>Risk weighted by cargo value, route history, and time of day. The first caravan is safe. The hundredth is not.</small></span>
             <span class="r">npc</span>
           </div>
           <div class="row">
-            <span class="ico">iv</span>
+            <span class="ico">IV</span>
             <span class="l">Per-land transit tax<small>Towns set their own tariff curves. Players can route around — at a cost in distance and risk.</small></span>
             <span class="r">tax.yml</span>
           </div>
           <div class="row">
-            <span class="ico">v</span>
+            <span class="ico">V</span>
             <span class="l">Insurance &amp; escort markets<small>Underwrite other players' dispatches. Take a premium. Pay out on losses. A real second-order economy.</small></span>
             <span class="r">market</span>
           </div>
@@ -1526,7 +1528,7 @@
       <div class="faq-list reveal">
         <div class="faq-item open">
           <div class="faq-q">
-            <span class="num">i.</span>
+            <span class="num">I.</span>
             <span class="qt">Does it work alongside my existing economy plugin?</span>
             <span class="toggle">+</span>
           </div>
@@ -1536,7 +1538,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">ii.</span>
+            <span class="num">II.</span>
             <span class="qt">What if I don't use Lands or Towny?</span>
             <span class="toggle">+</span>
           </div>
@@ -1547,7 +1549,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">iii.</span>
+            <span class="num">III.</span>
             <span class="qt">Will dispatching caravans tank my server's TPS?</span>
             <span class="toggle">+</span>
           </div>
@@ -1557,7 +1559,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">iv.</span>
+            <span class="num">IV.</span>
             <span class="qt">Do I need to expose a port for the web dashboard?</span>
             <span class="toggle">+</span>
           </div>
@@ -1567,7 +1569,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">v.</span>
+            <span class="num">V.</span>
             <span class="qt">Can I customise prices, taxes, guard tiers?</span>
             <span class="toggle">+</span>
           </div>
@@ -1577,7 +1579,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">vi.</span>
+            <span class="num">VI.</span>
             <span class="qt">Do I need a separate map plugin for the live map?</span>
             <span class="toggle">+</span>
           </div>
@@ -1588,7 +1590,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">vii.</span>
+            <span class="num">VII.</span>
             <span class="qt">Do I need WorldGuard for region protection?</span>
             <span class="toggle">+</span>
           </div>
@@ -1599,7 +1601,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">viii.</span>
+            <span class="num">VIII.</span>
             <span class="qt">What is Fog of War and should I enable it?</span>
             <span class="toggle">+</span>
           </div>
@@ -1610,7 +1612,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">
-            <span class="num">ix.</span>
+            <span class="num">IX.</span>
             <span class="qt">What's the license really say?</span>
             <span class="toggle">+</span>
           </div>
